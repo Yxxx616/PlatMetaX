@@ -1,4 +1,4 @@
-function varargout = platmetabbo(varargin)
+function varargout = platmetax(varargin)
 %platmetabbo - The main function of platmetabbo.
 %
 %   platmetabbo() displays the GUI of platmetabbo.

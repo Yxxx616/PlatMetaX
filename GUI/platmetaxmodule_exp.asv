@@ -278,7 +278,6 @@ classdef platmetaxmodule_exp < handle
         end
         %% Plot the convergence
         function plotConvergence(obj, pros, algs)
-            s  = {'o', '+', '*', '.', 'x', 's', 'd', '^', 'v', '>', '<', 'p', 'h'};
             metric = obj.app.dropC(1).Value;
             if strcmp(metric,'Number of runs') || strcmp(metric,'runtime')
             else
@@ -286,6 +285,10 @@ classdef platmetaxmodule_exp < handle
                     hFig = figure('Visible', 'on'); 
                     hold on;
                     legends = {};
+                    meanColors = {};
+                    xfills = {};
+                    yfills = {};
+                    
                     for a = 1:length(algs)
                         if isempty(metric)
                             warning('Metric value is empty. Skipping plot.');
@@ -300,11 +303,10 @@ classdef platmetaxmodule_exp < handle
                         meanValues =convergence(:,2);
                         upperBound = meanValues+convergence(:,3);
                         lowerBound = meanValues-convergence(:,3);
-                        hMean = plot(X, meanValues, 'LineWidth', 1.5, 'Marker',s{a},'DisplayName', class(algs(a).alg));
-                        meanColor = hMean.Color;
-                        xfill = [X; flip(X)];
-                        yfill = [upperBound; flip(lowerBound)];
-                        fill(xfill, yfill, meanColor, 'FaceAlpha', 0.3, 'EdgeColor', 'none','HandleVisibility','off');
+                        hMean = plot(X, meanValues, 'LineWidth', 1.5, 'Marker',markerRepos);
+                        meanColors{end+1} = hMean.Color;
+                        xfills{end+1} = [X; flip(X)];
+                        yfills{end+1} = [upperBound; flip(lowerBound)];
                         legendLabel = class(algs(a).alg);
                         if isempty(legendLabel)
                             legendLabel = 'Unknown Algorithm';
@@ -319,7 +321,9 @@ classdef platmetaxmodule_exp < handle
                     xlabel('Number of evaluations');
                     ylabel(metric, 'Interpreter', 'none');
                     title(['Convergence on Problem:', problemClass],'Interpreter', 'none');
-                    
+                    for a = 1: length(algs)
+                        fill(xfills{a}, yfills{a}, meanColors{a}, 'FaceAlpha', 0.3, 'EdgeColor', 'none');
+                    end
                     grid on;
                     hold off;
                 end

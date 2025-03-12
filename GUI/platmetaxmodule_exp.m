@@ -41,7 +41,7 @@ classdef platmetaxmodule_exp < handle
             obj.app.labelA(8)  = platmetaxGUI.APP(16,[1 2],uilabel(obj.app.grid(1),'Text','Number of runs','FontColor',[.15 .6 .2],'FontWeight','bold','Tooltip','Number of runs for each algorithm on each problem'));
             obj.app.editA(1)   = platmetaxGUI.APP(16,3,uieditfield(obj.app.grid(1),'numeric','Value',31,'limits',[1 inf],'RoundFractionalValues','on','Tooltip','Number of runs for each algorithm on each problem'));
             obj.app.labelA(9)  = platmetaxGUI.APP(17,[1 2],uilabel(obj.app.grid(1),'Text','Number of results','FontColor',[.15 .6 .2],'FontWeight','bold','Tooltip','Number of populations saved in each run'));
-            obj.app.editA(2)   = platmetaxGUI.APP(17,3,uieditfield(obj.app.grid(1),'numeric','Value',5,'limits',[1 inf],'RoundFractionalValues','on','Tooltip','Number of populations saved in each run'));
+            obj.app.editA(2)   = platmetaxGUI.APP(17,3,uieditfield(obj.app.grid(1),'numeric','Value',10,'limits',[1 inf],'RoundFractionalValues','on','Tooltip','Number of populations saved in each run'));
             tempGrid           = platmetaxGUI.APP(18,[1 3],uigridlayout(obj.app.grid(1),'RowHeight',{'1x'},'ColumnWidth',{'0.5x',20,'1x'},'Padding',[0 0 0 0],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
             obj.app.labelA(10) = platmetaxGUI.APP(1,1,uilabel(tempGrid,'Text','File path','FontColor',[.15 .6 .2],'FontWeight','bold','Tooltip','File path for saving experimental settings'));
             obj.app.buttonA    = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','...','BackgroundColor','w','ButtonpushedFcn',@obj.cb_filepath,'Tooltip','File path for saving experimental settings'));

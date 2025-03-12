@@ -1,0 +1,792 @@
+classdef platmetaxmodule_app < handle
+%module_test - Application module.
+
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2024 BIMK Group. You are free to use the PlatEMO for
+% research purposes. All publications which use this platform or any code
+% in the platform should acknowledge the use of "PlatEMO" and reference "Ye
+% Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform
+% for evolutionary multi-objective optimization [educational forum], IEEE
+% Computational Intelligence Magazine, 2017, 12(4): 73-87".
+%--------------------------------------------------------------------------
+
+    properties(SetAccess = private)
+        platmetaxGUI;                % The platMetaBBOGUI object
+        app  = struct(); 	% All the components
+        pro  = [];          % Components of problem functions
+        con  = [];          % Components of constraint functions
+        data = {};          % All the results
+    end
+    methods(Access = ?platmetaxGUI)
+        %% Constructor
+        function obj = platmetaxmodule_app(platmetaxGUI)
+            % The main grid
+            obj.platmetaxGUI = platmetaxGUI;
+            obj.app.maingrid = platmetaxGUI.APP(3,1,uigridlayout(obj.platmetaxGUI.app.maingrid,'RowHeight',{20,30,'1x'},'ColumnWidth',{'2x',5,1,'1.2x',1,'2x','0.8x','0.2x'},'Padding',[5 5 5 5],'RowSpacing',5,'ColumnSpacing',0,'BackgroundColor','w'));
+            obj.app.label(1) = platmetaxGUI.APP(1,1,uilabel(obj.app.maingrid,'Text','Problem definition','HorizontalAlignment','center','FontSize',11,'FontColor',[.5 .5 .5]));
+            obj.app.label(2) = platmetaxGUI.APP(1,4,uilabel(obj.app.maingrid,'Text','Algorithm selection','HorizontalAlignment','center','FontSize',11,'FontColor',[.5 .5 .5]));
+            obj.app.label(3) = platmetaxGUI.APP(1,[6 8],uilabel(obj.app.maingrid,'Text','Result display','HorizontalAlignment','center','FontSize',11,'FontColor',[.5 .5 .5]));
+            platmetaxGUI.APP([1 3],3,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));
+            platmetaxGUI.APP([1 3],5,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));
+            
+            % The first panel
+            obj.app.grid(1)    = platmetaxGUI.APP(2,1,uigridlayout(obj.app.maingrid,'RowHeight',{1,'1x',1},'ColumnWidth',{18,18,70,'1x'},'Padding',[5 5 5 5],'RowSpacing',0,'ColumnSpacing',7,'BackgroundColor',[.95 .95 1]));
+            tempPanel          = platmetaxGUI.APP(2,1,uipanel(obj.app.grid(1),'BorderType','none','BackgroundColor',[.95 .95 1]));
+            obj.app.buttonA(1) = uibutton(tempPanel,'Position',[-2.5 -2.5 24 24],'Text','','Icon',obj.platmetaxGUI.icon.loadtable,'BackgroundColor',[.95 .95 1],'Tooltip','Load a problem','Interruptible','off','BusyAction','cancel','ButtonpushedFcn',@obj.cb_loadProblem);
+            tempPanel          = platmetaxGUI.APP(2,2,uipanel(obj.app.grid(1),'BorderType','none','BackgroundColor',[.95 .95 1]));
+            obj.app.buttonA(2) = uibutton(tempPanel,'Position',[-2.5 -2.5 24 24],'Text','','Icon',obj.platmetaxGUI.icon.savetable,'BackgroundColor',[.95 .95 1],'Tooltip','Save the problem','Interruptible','off','BusyAction','cancel','ButtonpushedFcn',@obj.cb_saveProblem);
+            obj.app.buttonA(3) = platmetaxGUI.APP([1 3],3,uibutton(obj.app.grid(1),'Text','Validation','BackgroundColor',[.95 .95 1],'Tooltip','Check the validity of the problem','Interruptible','off','BusyAction','cancel','ButtonpushedFcn',@(~,~)obj.cb_validation()));
+            obj.app.dropA      = platmetaxGUI.APP([1 3],4,uidropdown(obj.app.grid(1),'BackgroundColor',[.95 .95 1],'Tooltip','Select predefined examples','Items',{'User-defined problem','Single-objective optimization','Multi-objective optimization','Many-objective optimization','Constrained single-objective optimization',...
+                                         'Constrained multi-objective optimization','Rotated optimization','Integer optimization','Binary optimization','Permutation optimization','Hybrid optimization'},'ItemsData',1:11,'Value',1,'Interruptible','off','BusyAction','cancel','ValueChangedFcn',@obj.cb_selectProblem));
+          
+            % The second panel
+            obj.app.grid(2)     = platmetaxGUI.APP(3,1,uigridlayout(obj.app.maingrid,'RowHeight',num2cell([25,25,25,25,25,25,25,0,25,0,25,0,25,25,zeros(1,19),25,25,zeros(1,19),25,28,28,38,28]),'ColumnWidth',{75,50,'1x',25,20,22},'Padding',[0 10 0 0],'RowSpacing',5,'ColumnSpacing',5,'Scrollable','on','BackgroundColor','w'));
+            % Encoding scheme
+            tempGrid            = platmetaxGUI.APP(1,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.titleB(1)   = platmetaxGUI.APP(1,1,uilabel(tempGrid,'Text',' Encoding scheme','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.labelB(1)   = platmetaxGUI.APP(2,1,uilabel(obj.app.grid(2),'Text','Encoding: x =','HorizontalAlignment','right'));
+            obj.app.editB(1)    = platmetaxGUI.APP(2,[2 5],uieditfield(obj.app.grid(2),'Value','1,1,1,1,1,1,1,1,1,1','Tooltip','Type of each decision variable','ValueChangedFcn',@obj.cb_updateFilter));
+            obj.app.labelB(3)   = platmetaxGUI.APP(3,[1 6],uilabel(obj.app.grid(2),'Text','(1. real number 2. integer 3. label 4. binary number 5. permutation)'));
+            % Decision space
+            tempGrid            = platmetaxGUI.APP(4,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.titleB(2)   = platmetaxGUI.APP(1,1,uilabel(tempGrid,'Text',' Decision space','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.labelB(4)   = platmetaxGUI.APP(5,1,uilabel(obj.app.grid(2),'Text','Lower: x >=','HorizontalAlignment','right'));
+            obj.app.editB(2)    = platmetaxGUI.APP(5,[2 5],uieditfield(obj.app.grid(2),'Value','0,0,0,0,0,0,0,0,0,0','Tooltip','Lower bound of each decision variable'));
+            obj.app.labelB(5)   = platmetaxGUI.APP(6,1,uilabel(obj.app.grid(2),'Text','Upper: x <=','HorizontalAlignment','right'));
+            obj.app.editB(3)    = platmetaxGUI.APP(6,[2 5],uieditfield(obj.app.grid(2),'Value','1,1,1,1,1,1,1,1,1,1','Tooltip','Upper bound of each decision variable'));
+            % Data
+            tempGrid            = platmetaxGUI.APP(7,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{50,20,20,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.titleB(3)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Data','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.buttonB(1)  = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add a data','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,1}));
+            obj.app.buttonB(2)  = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','Enable',false,'FontSize',11,'Tooltip','Delete the data','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-1}));
+            obj.app.labelB(6)   = platmetaxGUI.APP(8,1,uilabel(obj.app.grid(2),'Text','data =','HorizontalAlignment','right'));
+            obj.app.editB(4)    = platmetaxGUI.APP(8,[2 4],uieditfield(obj.app.grid(2),'Value','eye(10)','Tooltip','User-defined data of the problem'));
+            obj.app.buttonB(3)  = platmetaxGUI.APP(8,5,uibutton(obj.app.grid(2),'Text','...','Tooltip','Load existing data','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_loadFunction,obj.app.editB(4),{'*.txt;*.dat;*.csv','Text file';'*.mat','MAT file'}}));
+            % Initialization function
+            tempGrid            = platmetaxGUI.APP(9,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{135,20,20,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.titleB(4)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Initialization function','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.buttonB(4)  = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add an initialization function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,2}));
+            obj.app.buttonB(5)  = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','Enable',false,'FontSize',11,'Tooltip','Delete the initialization function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-2}));
+            obj.app.labelB(7)   = platmetaxGUI.APP(10,1,uilabel(obj.app.grid(2),'Text','I(N) =','HorizontalAlignment','right'));
+            obj.app.editB(5)    = platmetaxGUI.APP(10,[2 4],uieditfield(obj.app.grid(2),'Value','rand(N,10)','Tooltip','Function for generating an initial population with size N'));
+            obj.app.buttonB(6)  = platmetaxGUI.APP(10,5,uibutton(obj.app.grid(2),'Text','...','Tooltip','Load existing function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_loadFunction,obj.app.editB(5),{'*.m','MATLAB function'}}));
+            obj.app.buttonB(7)  = platmetaxGUI.APP(10,6,uibutton(obj.app.grid(2),'Text','</>','FontSize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,obj.app.editB(5),'initialization'}));
+            % Repair function
+            tempGrid            = platmetaxGUI.APP(11,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{135,20,20,60,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.titleB(5)   = platmetaxGUI.APP(1,[1 5],uilabel(tempGrid,'Text',' Repair function','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.buttonB(8)  = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add a repair function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,3}));
+            obj.app.buttonB(9)  = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','Enable',false,'FontSize',11,'Tooltip','Delete the repair function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-3}));
+            obj.app.buttonB(10) = platmetaxGUI.APP(1,4,uibutton(tempGrid,'Text','Integrate','FontSize',10,'Tooltip','Integrate the repair function, objective functions, and constraint functions into a single evaluation function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,6}));
+            obj.app.labelB(8)   = platmetaxGUI.APP(12,1,uilabel(obj.app.grid(2),'Text','R(x) =','HorizontalAlignment','right'));
+            obj.app.editB(6)    = platmetaxGUI.APP(12,[2 4],uieditfield(obj.app.grid(2),'Value','max(min(x,1),0)','Tooltip','Function for repairing invalid solution','UserData',''));
+            obj.app.buttonB(11) = platmetaxGUI.APP(12,5,uibutton(obj.app.grid(2),'Text','...','Tooltip','Load existing function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_loadFunction,obj.app.editB(6),{'*.m','MATLAB function'}}));
+            obj.app.buttonB(12) = platmetaxGUI.APP(12,6,uibutton(obj.app.grid(2),'Text','</>','Fontsize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,obj.app.editB(6),'repair'}));
+            % Objective functions
+            tempGrid            = platmetaxGUI.APP(13,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{135,20,20,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.titleB(6)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Objective functions','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.buttonB(13) = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add an objective function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,4}));
+            obj.app.buttonB(14) = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','Enable',false,'FontSize',11,'Tooltip','Delete the last objective function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-4}));
+            obj.pro(1).label    = platmetaxGUI.APP(14,1,uilabel(obj.app.grid(2),'Text','f1(x) =','HorizontalAlignment','right'));
+            obj.pro(1).edit     = platmetaxGUI.APP(14,[2 4],uieditfield(obj.app.grid(2),'Value','mean(x)','Tooltip','Objective function to be minimized'));
+            obj.pro(1).button   = platmetaxGUI.APP(14,5,uibutton(obj.app.grid(2),'Text','...','Tooltip','Load existing function or data','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_loadFunction,obj.pro(1).edit,{'*.m','MATLAB function';'*.txt;*.dat;*.csv','Text file'}}));
+            obj.pro(1).button2  = platmetaxGUI.APP(14,6,uibutton(obj.app.grid(2),'Text','</>','Fontsize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,obj.pro(1).edit,'objective'}));
+            % Constraint functions
+            tempGrid            = platmetaxGUI.APP(34,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{135,20,20,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.titleB(7)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Constraint functions','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.buttonB(15) = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add a constraint function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,5}));
+            obj.app.buttonB(16) = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','FontSize',11,'Tooltip','Delete the last constraint function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-5}));
+            obj.con(1).labelA   = platmetaxGUI.APP(35,1,uilabel(obj.app.grid(2),'Text','g1(x) =','HorizontalAlignment','right'));
+            obj.con(1).edit     = platmetaxGUI.APP(35,[2 3],uieditfield(obj.app.grid(2),'Value','0.5-mean(x)','Tooltip','Constraint function to be satisfied'));
+            obj.con(1).labelB   = platmetaxGUI.APP(35,4,uilabel(obj.app.grid(2),'Text','<= 0'));
+            obj.con(1).button   = platmetaxGUI.APP(35,5,uibutton(obj.app.grid(2),'Text','...','Tooltip','Load existing function or data','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_loadFunction,obj.con(1).edit,{'*.m','MATLAB function';'*.txt;*.dat;*.csv','Text file'}}));
+            obj.con(1).button2  = platmetaxGUI.APP(35,6,uibutton(obj.app.grid(2),'Text','</>','Fontsize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,obj.con(1).edit,'constraint'}));
+            % Special difficulties
+            tempGrid            = platmetaxGUI.APP(55,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{127,30,30,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.titleB(7)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Special difficulties','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.checkB(1)   = platmetaxGUI.APP(56,[1 6],uicheckbox(obj.app.grid(2),'FontSize',11,'Text','<large> The search space is large, e.g., having more than 100 real decision variables.','WordWrap','on','ValueChangedFcn',@obj.cb_updateFilter));
+            obj.app.checkB(2)   = platmetaxGUI.APP(57,[1 6],uicheckbox(obj.app.grid(2),'FontSize',11,'Text','<expensive> The functions are computationally expensive, e.g., using less than 1000 function evaluations.','WordWrap','on','ValueChangedFcn',@obj.cb_updateFilter));
+            obj.app.checkB(3)   = platmetaxGUI.APP(58,[1 6],uicheckbox(obj.app.grid(2),'FontSize',11,'Text','<multimodal> There are multiple optimal solutions with similar objective values but different decision vectors, all of which should be obtained.','WordWrap','on','ValueChangedFcn',@obj.cb_updateFilter));
+            obj.app.checkB(4)   = platmetaxGUI.APP(59,[1 6],uicheckbox(obj.app.grid(2),'FontSize',11,'Text','<sparse> The optimal solutions are sparse, i.e., most decision variables of which are zero.','WordWrap','on','ValueChangedFcn',@obj.cb_updateFilter));
+            
+            % The third panel
+            obj.app.grid(3)   = platmetaxGUI.APP([2 3],4,uigridlayout(obj.app.maingrid,'RowHeight',{16,21,16,21,21,16,21,21,21,4,18,'1.1x','1x'},'ColumnWidth',{'1x','1.1x','1x'},'Padding',[8 10 8 0],'RowSpacing',3,'ColumnSpacing',5,'BackgroundColor','w'));
+            [obj.app.stateC,obj.app.labelC] = platmetaxGUI.GenerateLabelButton(obj.app.grid(3),zeros(1,17),@obj.cb_filter);
+            obj.app.labelC(4) = platmetaxGUI.APP(11,[1 2],uilabel(obj.app.grid(3),'Text','Algorithms','FontSize',13,'FontColor',[.2 .4 .7],'FontWeight','bold'));
+            obj.app.labelC(5) = platmetaxGUI.APP(11,3,uilabel(obj.app.grid(3),'HorizontalAlignment','right','FontSize',10,'FontColor',[.2 .4 .7]));
+            obj.app.listC     = platmetaxGUI.APP(12,[1 3],uilistbox(obj.app.grid(3),'FontColor',[.2 .4 .7],'ValueChangedFcn',@obj.cb_updateList));
+            obj.app.dropC     = platmetaxGUI.APP(11,2,uidropdown(obj.app.grid(3),'BackgroundColor','w','FontColor',[.2 .4 .7],'Items',{'All year'},'ValueChangedFcn',@(h,~)platmetaxGUI.UpdateAlgProListYear(obj.app.listC,h,obj.app.labelC(5),obj.platmetaxGUI.algList)));
+            obj.app.listD     = uilist(obj.app.grid(3),obj.platmetaxGUI.app.figure,obj.platmetaxGUI.icon);
+            obj.app.tipD      = platmetaxGUI.APP(13,[1 3],uilabel(obj.app.grid(3),'Text','Select an algorithm','HorizontalAlignment','center'));
+            obj.app.listD.grid.Padding = [0,0,0,0];
+            platmetaxGUI.APP(13,[1 3],obj.app.listD.grid);
+            
+            % The fourth panel
+            obj.app.dropD(1) = platmetaxGUI.APP(1,7,uidropdown(obj.app.maingrid,'BackgroundColor','w','Items',{},'ValueChangedFcn',@obj.cb_slider,'Visible',false));
+            obj.app.dropD(2) = platmetaxGUI.APP(1,7,uidropdown(obj.app.maingrid,'BackgroundColor','w','Items',{},'ValueChangedFcn',@obj.cb_slider));
+            obj.app.grid(4)  = platmetaxGUI.APP([2 3],[6 8],uigridlayout(obj.app.maingrid,'RowHeight',{'1x',40,30},'ColumnWidth',{20,150,'1x','1x',120,30,20},'Padding',[15 10 15 0],'RowSpacing',5,'BackgroundColor','w'));
+            obj.app.axes     = platmetaxGUI.APP(1,[2 6],uiaxes(obj.app.grid(4),'BackgroundColor','w','Box','on'));
+            obj.app.waittip  = platmetaxGUI.APP(1,[2 6],uilabel(obj.app.grid(4),'HorizontalAlignment','center','Text','                 Please wait ... ...','Visible',false));
+            tempTb = axtoolbar(obj.app.axes,{'rotate','pan','zoomin','zoomout'});
+            obj.app.toolD(1)   = axtoolbarbtn(tempTb,'push','Icon',obj.platmetaxGUI.icon.gif,'Tooltip','Save the evolutionary process to gif','ButtonPushedFcn',@obj.cb_toolbutton1);
+            obj.app.toolD(2)   = axtoolbarbtn(tempTb,'push','Icon',obj.platmetaxGUI.icon.newfigure,'Tooltip','Open in new figure and save to workspace','ButtonPushedFcn',@obj.cb_toolbutton2);
+            obj.app.slider     = platmetaxGUI.APP(2,[1 7],uislider(obj.app.grid(4),'Limits',[0 1],'MajorTicks',0:0.25:1,'MajorTickLabels',{'0%','25%','50%','75%','100%'},'MinorTicks',0:0.01:1,'ValueChangedFcn',@obj.cb_slider));
+            obj.app.labelD     = platmetaxGUI.APP(3,[1 2],uilabel(obj.app.grid(4),'Text','','HorizontalAlignment','left'));
+            obj.app.buttonD(1) = platmetaxGUI.APP(3,3,uibutton(obj.app.grid(4),'push','Text','Start','FontSize',16,'Enable',false,'ButtonpushedFcn',@obj.cb_start));
+            obj.app.buttonD(2) = platmetaxGUI.APP(3,4,uibutton(obj.app.grid(4),'push','Text','Stop','FontSize',16,'Enable',false,'ButtonpushedFcn',@(~,~)set(obj.app.buttonD(1:2),{'Enable','Text'},{true,'Start';false,'Stop'})));
+            obj.app.menuD      = uicontext(obj.platmetaxGUI.app.figure,120);
+            obj.app.menuD.add('  Save best solutions','',{@obj.cb_save,1});
+            obj.app.menuD.add('  Save all solutions','',{@obj.cb_save,2});
+            obj.app.menuD.flush();
+            obj.app.buttonD(3) = platmetaxGUI.APP(3,[6 7],uibutton(obj.app.grid(4),'push','Text','Save','FontSize',16,'Enable',false,'ButtonpushedFcn',@(~,~)obj.app.menuD.show()));
+            
+            % Initialization
+            obj.cb_updateFilter();
+            obj.cb_filter([],[],0);
+        end
+    end
+    methods(Access = private)
+        %% Update the algorithms in the list
+        function cb_filter(obj,~,~,index)
+            % Update the list of algorithms
+            func = platmetaxGUI.UpdateAlgProList(index,obj.app.stateC,obj.app.listC,obj.app.dropC,obj.app.labelC(5),obj.platmetaxGUI.algList);
+            obj.app.listD.del(1);
+            obj.app.tipD.Visible      = true;
+            obj.app.buttonD(1).Enable = false;
+            % Update the list of metrics
+            show = cellfun(@(s)func(s(2:end,1:end-2)),obj.platmetaxGUI.metList(:,1));
+            if obj.app.stateC(1).Value == 0 % Multi-objective optimization
+                obj.app.dropD(1).Items = ['Population (objectives)';'Population (variables)';obj.platmetaxGUI.metList(show,2)];
+            else                            % Single-objective optimization
+                obj.app.dropD(2).Items = ['Population (variables)';obj.platmetaxGUI.metList(show,2)];
+            end
+        end
+        %% Update the parameter list
+        function cb_updateList(obj,~,~)
+            platmetaxGUI.UpdateAlgProPara(obj.platmetaxGUI.app.figure,obj.app.listC,obj.app.listD,'ALGORITHM',3);
+            obj.app.tipD.Visible      = false;
+            obj.app.buttonD(1).Enable = true;
+        end
+        %% Update the problem definition panel
+        function cb_updateProblem(obj,~,~,index,noFlush)
+            switch index
+                case {1,-1}     % Data
+                    obj.app.grid(2).RowHeight{8} = max(0,25*sign(index));
+                    obj.app.buttonB(1).Enable    = index < 0;
+                    obj.app.buttonB(2).Enable    = index > 0;
+                    if index > 0
+                        str = ',data';
+                    else
+                        str = '';
+                    end
+                    obj.app.labelB(7).Text = sprintf('I(N%s) =',str);
+                    obj.app.labelB(8).Text = sprintf('R(x%s) =',str);
+                    for i = 1 : length(obj.pro)
+                        obj.pro(i).label.Text = sprintf('f%d(x%s) =',i,str);
+                    end
+                    for i = 1 : length(obj.con)
+                        obj.con(i).labelA.Text = sprintf('g%d(x%s) =',i,str);
+                    end
+                case {2,-2}     % Initialization function
+                    obj.app.grid(2).RowHeight{10} = max(0,25*sign(index));
+                    obj.app.buttonB(4).Enable     = index < 0;
+                    obj.app.buttonB(5).Enable     = index > 0;
+                case {3,-3}     % Repair function
+                    obj.app.grid(2).RowHeight{12} = max(0,25*sign(index));
+                    obj.app.buttonB(8).Enable     = index < 0;
+                    obj.app.buttonB(9).Enable     = index > 0;
+                case {4,-4}     % Objective functions
+                    if index>0 && length(obj.pro)<20
+                        if obj.app.grid(2).RowHeight{8} > 0
+                            str = {',data','*data'};
+                        else
+                            str = {'',''};
+                        end
+                        item.label   = platmetaxGUI.APP(length(obj.pro)+14,1,uilabel(obj.app.grid(2),'Text',sprintf('f%d(x%s) =',length(obj.pro)+1,str{1}),'HorizontalAlignment','right'));
+                        item.edit    = platmetaxGUI.APP(length(obj.pro)+14,[2 4],uieditfield(obj.app.grid(2),'Value',sprintf('mean(x%s)',str{2}),'Tooltip','Objective function to be minimized'));
+                        item.button  = platmetaxGUI.APP(length(obj.pro)+14,5,uibutton(obj.app.grid(2),'Text','...','Tooltip','Load existing function or data','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_loadFunction,item.edit,{'*.m','MATLAB function';'*.txt;*.dat;*.csv','Text file'}}));
+                        item.button2 = platmetaxGUI.APP(length(obj.pro)+14,6,uibutton(obj.app.grid(2),'Text','</>','Fontsize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,item.edit,'objective'}));
+                        obj.pro      = [obj.pro,item];
+                    elseif index<0 && length(obj.pro)>0
+                        delete(obj.pro(end).label);
+                        delete(obj.pro(end).edit);
+                        delete(obj.pro(end).button);
+                        delete(obj.pro(end).button2);
+                        obj.pro(end) = [];
+                    end
+                    obj.app.grid(2).RowHeight(14:33) = num2cell([zeros(1,length(obj.pro))+25,zeros(1,20-length(obj.pro))]);
+                    obj.app.buttonB(13).Enable       = length(obj.pro) < 20;
+                    obj.app.buttonB(14).Enable       = length(obj.pro) > 1;
+                case {5,-5}     % Constraint functions
+                    if index>0 && length(obj.con)<20
+                        if obj.app.grid(2).RowHeight{8} > 0
+                            str = {',data','*data'};
+                        else
+                            str = {'',''};
+                        end
+                        item.labelA  = platmetaxGUI.APP(length(obj.con)+35,1,uilabel(obj.app.grid(2),'Text',sprintf('g%d(x%s) =',length(obj.con)+1,str{1}),'HorizontalAlignment','right'));
+                        item.edit    = platmetaxGUI.APP(length(obj.con)+35,[2 3],uieditfield(obj.app.grid(2),'Value',sprintf('0.5-mean(x%s)',str{2}),'Tooltip','Constraint function to be satisfied'));
+                        item.labelB  = platmetaxGUI.APP(length(obj.con)+35,4,uilabel(obj.app.grid(2),'Text','<= 0'));
+                        item.button  = platmetaxGUI.APP(length(obj.con)+35,5,uibutton(obj.app.grid(2),'Text','...','Tooltip','Load existing function or data','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_loadFunction,item.edit,{'*.m','MATLAB function';'*.txt;*.dat;*.csv','Text file'}}));
+                        item.button2 = platmetaxGUI.APP(length(obj.con)+35,6,uibutton(obj.app.grid(2),'Text','</>','Fontsize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,item.edit,'constraint'}));
+                        obj.con      = [obj.con,item];
+                    elseif index<0 && length(obj.con)>0
+                        delete(obj.con(end).labelA);
+                        delete(obj.con(end).edit);
+                        delete(obj.con(end).labelB);
+                        delete(obj.con(end).button);
+                        delete(obj.con(end).button2);
+                        obj.con(end) = [];
+                    end
+                    obj.app.grid(2).RowHeight(35:54) = num2cell([zeros(1,length(obj.con))+25,zeros(1,20-length(obj.con))]);
+                    obj.app.buttonB(15).Enable       = length(obj.con) < 20;
+                    obj.app.buttonB(16).Enable       = length(obj.con) > 0;
+                case 6          % Evaluation function
+                    if strcmp(obj.app.buttonB(10).Text,'Integrate')
+                        obj.app.titleB(5).Text      = ' Evaluation function';
+                        obj.app.buttonB(8).Enable   = false;
+                        obj.app.buttonB(9).Enable   = false;
+                        obj.app.buttonB(10).Text    = 'Separate';
+                        obj.app.buttonB(10).Tooltip = 'Separate the evaluation function into repair function, objective functions, and constraint functions';
+                        obj.app.labelB(8).Text      = '[x,f,g] =';
+                        [obj.app.editB(6).Value,obj.app.editB(6).UserData] = deal(obj.app.editB(6).UserData,obj.app.editB(6).Value);
+                        obj.app.editB(6).Tooltip = 'Function for evaluating solution';
+                        obj.app.grid(2).RowHeight{12}    = 25;
+                        obj.app.grid(2).RowHeight(13:54) = {0};
+                    else
+                        obj.app.titleB(5).Text      = ' Repair function';
+                        obj.app.buttonB(9).Enable   = true;
+                        obj.app.buttonB(10).Text    = 'Integrate';
+                        obj.app.buttonB(10).Tooltip = 'Integrate the repair function, objective functions, and constraint functions into a single evaluation function';
+                        if obj.app.grid(2).RowHeight{8} > 0
+                            str = ',data';
+                        else
+                            str = '';
+                        end
+                        obj.app.labelB(8).Text = sprintf('R(x%s) =',str);
+                        [obj.app.editB(6).Value,obj.app.editB(6).UserData] = deal(obj.app.editB(6).UserData,obj.app.editB(6).Value);
+                        obj.app.editB(6).Tooltip = 'Function for repairing invalid solution';
+                        obj.app.grid(2).RowHeight(13:13+length(obj.pro)) = {25};
+                        obj.app.grid(2).RowHeight(34:34+length(obj.con)) = {25};
+                    end
+            end
+            if nargin < 5 || ~noFlush
+                obj.cb_updateFilter();
+            end
+        end
+        %% Validate the problem
+        function PRO = cb_validation(obj,para,paraname)
+            if nargin < 2
+                para     = {1,1};
+                paraname = 'maxFE';
+            end
+            Str = GetSetProblem(obj);
+            try
+                if length(Str) > 6
+                    PRO = UserProblem('N',para{1},paraname,para{2},'encoding',Str{1},'lower',Str{2},'upper',Str{3},'data',Str{4},'initFcn',Str{5},'decFcn',Str{6},'objFcn',Str{7},'conFcn',Str{8});
+                else
+                    PRO = UserProblem('N',para{1},paraname,para{2},'encoding',Str{1},'lower',Str{2},'upper',Str{3},'data',Str{4},'initFcn',Str{5},'evalFcn',Str{6});
+                end
+                PRO.Initialization();
+            catch err
+                if isempty(err.cause)
+                    err = addCause(err,MException('','The problem definition is invalid'));
+                end
+                uialert(obj.platmetaxGUI.app.figure,sprintf('%s, since %s',err.cause{1}.message,err.message),'Invalid problem');
+                rethrow(err);
+            end
+            if nargout < 1
+                uialert(obj.platmetaxGUI.app.figure,'The problem definition is valid.','Valid problem','Icon','success');
+            end
+        end
+        %% Select a predefined a problem
+        function cb_selectProblem(obj,h,~)
+            if h.Value == 1
+                if ~isempty(h.UserData)
+                    GetSetProblem(obj,h.UserData);
+                    h.UserData = [];
+                end
+            else
+                switch h.Value
+                    case 2
+                        Str = {'ones(1,10)','zeros(1,10)','ones(1,10)','','','','mean(x.^2)',''};
+                    case 3
+                        Str = {'ones(1,15)','zeros(1,15)','ones(1,15)','','','',{'x(1)+mean(x(2:end).^2)','1-x(1).^2+mean(x(2:end).^2)'},''};
+                    case 4
+                        Str = {'ones(1,20)','zeros(1,20)','ones(1,20)','','','',{'x(1)*x(2)*x(3)+mean(x(4:end).^2)','x(1)*x(2)*(1-x(3))+mean(x(4:end).^2)','x(1)*(1-x(2))+mean(x(4:end).^2)','1-x(1)+mean(x(4:end).^2)'},''};
+                    case 5
+                        Str = {'ones(1,25)','zeros(1,25)','ones(1,25)','','','','mean(x.^2)','0.2-mean(x.^2)'};
+                    case 6
+                        Str = {'ones(1,30)','zeros(1,30)','ones(1,30)','','','',{'x(1)+mean(x(2:end).^2)','1-x(1).^2+mean(x(2:end).^2)'},{'0.2-mean(x(2:end).^2)','mean(x(2:end).^2)-0.8'}};
+                    case 7
+                        Str = {'ones(1,35)','zeros(1,35)','ones(1,35)','rand(35)','','','mean((x*data).^2)',''};
+                    case 8
+                        Str = {'zeros(1,40)+2','zeros(1,40)','zeros(1,40)+10','','','','mean((x-5).^2)',''};
+                    case 9
+                        Str = {'zeros(1,100)+4','','','','rand(N,100)<0.2','','1-mean(x)','mean(x)-0.1'};
+                    case 10
+                        Str = {'zeros(1,20)+5','','','','','','mean(cumsum(movsum(x,3)))',''};
+                    case 11
+                        Str = {'1,1,1,2,2,2,4,4,4','zeros(1,9)','zeros(1,9)+10','','','','sum((x-pi).^2)',''};
+                end
+                if isempty(h.UserData)
+                    h.UserData = GetSetProblem(obj);
+                end
+                GetSetProblem(obj,Str);
+            end
+        end
+        %% Load a problem
+        function cb_loadProblem(obj,~,~)
+            [file,folder] = uigetfile({'*.m','MATLAB code'});
+            figure(obj.platmetaxGUI.app.figure);
+            if ischar(file)
+                try
+                    f = fopen(fullfile(folder,file));
+                    fgetl(f); fgetl(f); fgetl(f); fgetl(f); fgetl(f); fgetl(f);
+                    Str{1} = regexp(fgetl(f),'(?<=''encoding'','').*(?='',...)','match','once');
+                    Str{2} = regexp(fgetl(f),'(?<=''lower'','').*(?='',...)','match','once');
+                    Str{3} = regexp(fgetl(f),'(?<=''upper'','').*(?='',...)','match','once');
+                    Str{4} = regexp(fgetl(f),'(?<=''data'','').*(?='',...)','match','once');
+                    Str{5} = regexp(fgetl(f),'(?<=''initFcn'','').*(?='',...)','match','once');
+                    str    = fgetl(f);
+                    if contains(str,'decFcn')
+                        Str{6} = regexp(str,'(?<=''decFcn'','').*(?='',...)','match','once');
+                        Str{7} = eval(regexp(fgetl(f),'(?<=''objFcn'',).*(?=,...)','match','once'));
+                        Str{8} = eval(regexp(fgetl(f),'(?<=''conFcn'',).*(?=\);)','match','once'));
+                    else
+                        Str{6} = regexp(str,'(?<=''evalFcn'','').*(?=''\);)','match','once');
+                    end
+                    obj.app.dropA.Value = 1;
+                    GetSetProblem(obj,Str);
+                catch err
+                    uialert(obj.platmetaxGUI.app.figure,'Fail to load the problem, please refer to the command window for details.','Error');
+                    rethrow(err);
+                end
+            end
+        end
+        %% Save the problem
+        function cb_saveProblem(obj,~,~)
+            [Name,Path] = uiputfile({'*.m','MATLAB code'},'','new');
+            figure(obj.platmetaxGUI.app.figure);
+            if ischar(Name)
+                try
+                    Str      = GetSetProblem(obj);
+                    [~,name] = fileparts(Name);
+                    Code = {['classdef ',name,' < UserProblem % < PROBLEM']
+                           '% The code is automatically generated and should not be modified'
+                           ''
+                           '    methods'
+                           ['        function obj = ',name,'(varargin)']
+                           '            obj = obj@UserProblem(varargin{:},...'
+                           ['            ''encoding'',''',Str{1},''',...']
+                           ['            ''lower'',''',Str{2},''',...']
+                           ['            ''upper'',''',Str{3},''',...']
+                           ['            ''data'',''',Str{4},''',...']
+                           ['            ''initFcn'',''',Str{5},''',...']};
+                    if length(Str) > 6
+                        Code = [Code;
+                               ['            ''decFcn'',''',Str{6},''',...']
+                               ['            ''objFcn'',{',strjoin(strcat('''',Str{7},''''),','),'},...']
+                               ['            ''conFcn'',{',strjoin(strcat('''',Str{8},''''),','),'});']];
+                    else
+                        Code = [Code;
+                               ['            ''evalFcn'',''',Str{6},''');']];
+                    end
+                    Code = [Code;
+                            '        end'
+                            '    end'
+                            'end'];
+                    fid = fopen(fullfile(Path,Name),'wt');
+                    for i = 1 : length(Code)
+                        fprintf(fid,'%s\n',Code{i});
+                    end
+                    fclose(fid);
+                    web(['file://',fullfile(Path,Name)],'-browser');
+                catch err
+                    uialert(obj.platmetaxGUI.app.figure,'Fail to save the problem, please refer to the command window for details.','Error');
+                    rethrow(err);
+                end
+            end
+        end
+        %% Load existing data or function
+        function cb_loadFunction(obj,~,~,h,ext)
+            if length(h.Value)>2 && h.Value(1)=='<' && h.Value(end)=='>'
+                [file,folder] = uigetfile(ext,'',fileparts(h.Value(2:end-1)));
+            else
+                [file,folder] = uigetfile(ext,'',cd);
+            end
+            figure(obj.platmetaxGUI.app.figure);
+            if file ~= 0
+                h.Value = sprintf('<%s>',fullfile(folder,file));
+            end
+        end
+        %% Create new function
+        function cb_createFunction(obj,~,~,h,type)
+            if length(h.Value)>2 && h.Value(1)=='<' && h.Value(end)=='>'
+                [file,folder] = uiputfile({'*.m','MATLAB function'},'',fullfile(fileparts(h.Value(2:end-1)),'myFcn'));
+            else
+                [file,folder] = uiputfile({'*.m','MATLAB function'},'',fullfile(cd,'myFcn'));
+            end
+            figure(obj.platmetaxGUI.app.figure);
+            if ischar(file)
+                try
+                    fid      = fopen(fullfile(folder,file),'wt');
+                    [~,name] = fileparts(file);
+                    switch type
+                        case 'initialization'           % Initialization function
+                            if obj.app.grid(2).RowHeight{8} > 0
+                                str = ',data';
+                            else
+                                str = '';
+                            end
+                            fprintf(fid,'function PopDec = %s(N%s)\n',name,str);
+                            fprintf(fid,'%% This is a user-defined %s function\n',type);
+                            fprintf(fid,'%% Input ''N'' is a scalar denoting the number of generated solutions\n');
+                            if obj.app.grid(2).RowHeight{8} > 0
+                                fprintf(fid,'%% Input ''data'' can be any type of user-defined data\n');
+                            end
+                            fprintf(fid,'%% Output ''PopDec'' is a matrix with each row denoting the decision vector of a solution\n\n');
+                            fprintf(fid,'    PopDec = rand(N,10);\n');
+                            fprintf(fid,'end');
+                        case 'repair'                   % Repair function or evaluation function
+                            if obj.app.grid(2).RowHeight{8} > 0
+                                str = {',data','*data'};
+                            else
+                                str = {'',''};
+                            end
+                            if strcmp(obj.app.buttonB(10).Text,'Integrate')
+                                fprintf(fid,'function x = %s(x%s)\n',name,str{1});
+                            else
+                                fprintf(fid,'function [x,f,g] = %s(x%s)\n',name,str{1});
+                                type = 'evaluation';
+                            end
+                            fprintf(fid,'%% This is a user-defined %s function\n',type);
+                            fprintf(fid,'%% Input ''x'' is a row vector denoting the decision vector of a solution\n');
+                            if obj.app.grid(2).RowHeight{8} > 0
+                                fprintf(fid,'%% Input ''data'' can be any type of user-defined data\n');
+                            end
+                            if strcmp(obj.app.buttonB(10).Text,'Integrate')
+                                fprintf(fid,'%% Output ''x'' denotes the repaired decision vector of the solution\n\n');
+                            else
+                                fprintf(fid,'%% Output ''x'' denotes the repaired decision vector of the solution\n');
+                                fprintf(fid,'%% Output ''f'' denotes all the objective values of the solution\n');
+                                fprintf(fid,'%% Output ''g'' denotes all the constraint values of the solution\n\n');
+                            end
+                            if strcmp(obj.app.buttonB(10).Text,'Integrate')
+                                fprintf(fid,'    x = max(min(x,1),0);\n');
+                            else
+                                fprintf(fid,'    x    = max(min(x,1),0);\n');
+                                fprintf(fid,'    f(1) = mean(x%s);\n',str{2});
+                                fprintf(fid,'    f(2) = 1-mean(x);\n');
+                                fprintf(fid,'    g(1) = mean(x%s)-0.8;\n',str{2});
+                                fprintf(fid,'    g(2) = 0.2-mean(x%s);\n',str{2});
+                            end
+                            fprintf(fid,'end');
+                        case {'objective','constraint'} % Objective and constraint functions
+                            if obj.app.grid(2).RowHeight{8} > 0
+                                str = {',data','*data'};
+                            else
+                                str = {'',''};
+                            end
+                            fprintf(fid,'function y = %s(x%s)\n',name,str{1});
+                            fprintf(fid,'%% This is a user-defined %s function\n',type);
+                            fprintf(fid,'%% Input ''x'' is a row vector denoting the decision vector of a solution\n');
+                            if obj.app.grid(2).RowHeight{8} > 0
+                                fprintf(fid,'%% Input ''data'' can be any type of user-defined data\n');
+                            end
+                            fprintf(fid,'%% Output ''y'' is a scalar denoting the %s value of the solution\n',type);
+                            if strcmp(type,'objective')
+                                fprintf(fid,'%% The objective is to be minimized\n\n');
+                                fprintf(fid,'    y = mean(x%s);\n',str{2});
+                            else
+                                fprintf(fid,'%% The constraint is satisfied if and only it is not positive\n\n');
+                                fprintf(fid,'    y = mean(x%s)-0.5;           %% Constraint mean(x%s)<=0.5\n',str{2},str{2});
+                                fprintf(fid,'    y = 0.5-mean(x%s);           %% Constraint mean(x%s)>=0.5\n',str{2},str{2});
+                                fprintf(fid,'    y = abs(0.5-mean(x%s))-1e-6; %% Constraint mean(x%s)==0.5\n',str{2},str{2});
+                            end
+                            fprintf(fid,'end');
+                    end
+                    fclose(fid);
+                    web(['file://',fullfile(folder,file)],'-browser');
+                    h.Value = sprintf('<%s>',fullfile(folder,file));
+                catch err
+                    uialert(obj.platmetaxGUI.app.figure,'Fail to create a new function, please refer to the command window for details.','Error');
+                    rethrow(err);
+                end
+            end
+        end
+        %% Update the filter
+        function cb_updateFilter(obj,~,~)
+            oldState = [obj.app.stateC.Value];
+            if strcmp(obj.app.buttonB(10).Text,'Integrate')
+                obj.app.stateC(1).Value = length(obj.pro) <= 1;
+                obj.app.stateC(2).Value = length(obj.pro) >= 2 && length(obj.pro) <= 3;
+                obj.app.stateC(3).Value = length(obj.pro) >= 4;
+            end
+            encoding = str2num(obj.app.editB(1).Value);
+            obj.app.stateC(4).Value = any(encoding==1);
+            obj.app.stateC(5).Value = any(encoding==2);
+            obj.app.stateC(6).Value = any(encoding==3);
+            obj.app.stateC(7).Value = any(encoding==4);
+            obj.app.stateC(8).Value = any(encoding==5);
+            obj.app.stateC(9).Value = obj.app.checkB(1).Value;
+            if strcmp(obj.app.buttonB(10).Text,'Integrate')
+                obj.app.stateC(10).Value = ~isempty(obj.con);
+            end
+            obj.app.stateC(11).Value = obj.app.checkB(2).Value;
+            obj.app.stateC(12).Value = obj.app.checkB(3).Value;
+            obj.app.stateC(13).Value = obj.app.checkB(4).Value;
+            if any(oldState~=[obj.app.stateC.Value])
+                obj.cb_filter([],[],0);
+            end
+        end
+        %% Start the execution
+        function cb_start(obj,~,~)
+            if strcmp(obj.app.buttonD(1).Text,'Pause')
+                obj.app.buttonD(1).Text = 'Continue';
+            elseif strcmp(obj.app.buttonD(1).Text,'Continue')
+                obj.app.buttonD(1).Text = 'Pause';
+            else
+                % Generate the ALGORITHM object
+                try
+                    [name,para] = platmetaxGUI.GetParameterSetting(obj.app.listD.items(1));
+                    ALG = feval(name,'parameter',para(3:end),'outputFcn',@obj.outputFcn,'save',20);
+                catch err
+                    uialert(obj.platmetaxGUI.app.figure,err.message,'Invalid parameter settings');
+                    return;
+                end
+                % Generate the PROBLEM object
+                PRO = obj.cb_validation(para(1:2),obj.app.listD.items(1).label(2).Text);
+                % Update the data
+                obj.data = {ALG,PRO,{obj.app.buttonB.Enable}};
+                % Update the platmetaxGUI
+                set([obj.platmetaxGUI.app.button,obj.app.buttonA,obj.app.dropA,obj.app.editB,obj.app.buttonB,obj.app.checkB,obj.app.stateC,obj.app.listC,obj.app.dropC,obj.app.dropD],'Enable',false);
+                obj.app.listD.Enable    = false;
+                set(obj.app.toolD,'Visible',false);
+                obj.app.buttonD(1).Text = 'Pause';
+                set(obj.app.buttonD([2,3]),'Enable',true);
+                if PRO.M > 1
+                    obj.app.dropD(1).Value   = obj.app.dropD(1).Items{1};
+                    obj.app.dropD(1).Visible = 'on';
+                    obj.app.dropD(2).Visible = 'off';
+                else
+                    obj.app.dropD(2).Value   = obj.app.dropD(2).Items{1};
+                    obj.app.dropD(1).Visible = 'off';
+                    obj.app.dropD(2).Visible = 'on';
+                end
+                set([obj.pro.edit,obj.con.edit,obj.pro.button,obj.pro.button2,obj.con.button,obj.con.button2],'Enable',false);
+                % Execute the algorithm
+                try
+                    algName = class(ALG);
+                    if contains(algName, 'Baseoptimizer')
+                        parts = strsplit(algName, '_'); % 按下划线分割字符串
+                        comp = parts{1}; % 第一部分
+                        for i = 2:length(parts)-1
+                            comp = strcat(comp, '_', parts{i}); % 重新拼接前两部分
+                        end
+                        env = str2func([comp '_Environment']);
+                        mo = str2func([comp '_Metaoptimizer']);
+                        task = Test(mo, ALG, env, PRO);
+                        task.run();
+                        obj.cb_stop();
+                    else
+                        ALG.Solve(PRO);
+                        obj.cb_stop();
+                    end
+                catch err
+                    uialert(obj.platmetaxGUI.app.figure,'The algorithm terminates unexpectedly, please refer to the command window for details.','Error');
+                    obj.cb_stop();
+                    rethrow(err);
+                end
+            end
+        end
+        %% Stop the execution
+        function cb_stop(obj,~,~)
+            set([obj.platmetaxGUI.app.button,obj.app.buttonA,obj.app.dropA,obj.app.editB,obj.app.checkB,obj.app.stateC,obj.app.listC,obj.app.dropC,obj.app.dropD],'Enable',true);
+            obj.app.listD.Enable      = true;
+            [obj.app.buttonB.Enable]  = deal(obj.data{3}{:});
+            obj.app.listD.Enable      = true;
+            set(obj.app.toolD,'Visible',true);
+            obj.app.buttonD(1).Text   = 'Start';
+            obj.app.buttonD(2).Enable = false;
+            set([obj.pro.edit,obj.con.edit,obj.pro.button,obj.pro.button2,obj.con.button,obj.con.button2],'Enable',true);
+            if isempty(obj.data{1}.result)
+                obj.data = {};
+            end
+        end
+        %% Save the result
+        function cb_save(obj,~,~,type)
+            ALG   = obj.data{1};
+            PRO   = obj.data{2};
+            rate  = PRO.FE/max(PRO.FE,PRO.maxFE);
+            index = max(1,round(obj.app.slider.Value/rate*size(ALG.result,1)));
+            platmetaxGUI.SavePopulation(obj.platmetaxGUI.app.figure,ALG.result{index,2},type);
+        end
+        %% Output function
+        function outputFcn(obj,Algorithm,Problem)
+            obj.app.slider.Value = Problem.FE/max(Problem.FE,Problem.maxFE);
+            obj.cb_slider();
+            assert(strcmp(obj.app.buttonD(2).Enable,'on'),'PlatMetaX:Termination','');
+            if strcmp(obj.app.buttonD(1).Text,'Continue')
+                waitfor(obj.app.buttonD(1),'Text');
+            end
+            assert(strcmp(obj.app.buttonD(2).Enable,'on'),'PlatMetaX:Termination','');
+        end
+        %% Show the specified data
+        function cb_slider(obj,~,~,ax)
+            if ~isempty(obj.data)
+                % Determine the current number of evaluationsnumber of evaluations
+                ALG  = obj.data{1};
+                PRO  = obj.data{2};
+                rate = PRO.FE/max(PRO.FE,PRO.maxFE);
+                obj.app.slider.Value      = min(obj.app.slider.Value,rate);
+                obj.app.slider.MajorTicks = 0 : 0.25 : rate;
+                obj.app.slider.MinorTicks = 0 : 0.01 : rate;
+                index = max(1,round(obj.app.slider.Value/rate*size(ALG.result,1)));
+                obj.app.labelD.Text = sprintf('%d evaluations',ALG.result{index,1});
+                % Clear the default or specified axes
+                if nargin > 3
+                    Draw(ax);
+                else
+                    Draw(obj.app.axes);
+                end
+                if PRO.M > 1
+                    % Show the result of multi-objective optimization
+                    switch obj.app.dropD(1).Value
+                        case 'Population (objectives)'
+                            PRO.DrawObj(ALG.result{index,2});
+                        case 'Population (variables)'
+                            PRO.DrawDec(ALG.result{index,2});
+                        otherwise
+                            obj.app.waittip.Visible = 'on'; drawnow();
+                            Draw([cell2mat(ALG.result(:,1)),ALG.CalMetric(obj.app.dropD(1).Value)],'-k.','LineWidth',1.5,'MarkerSize',10,{'Number of function evaluations',strrep(obj.app.dropD(1).Value,'_',' '),[]});
+                            obj.app.waittip.Visible = 'off';
+                    end
+                else
+                    % Show the result of single-objective optimization
+                    switch obj.app.dropD(2).Value
+                        case 'Population (variables)'
+                            PRO.DrawDec(ALG.result{index,2});
+                        otherwise
+                            Draw([cell2mat(ALG.result(:,1)),ALG.CalMetric(obj.app.dropD(2).Value)],'-k.','LineWidth',1.5,'MarkerSize',10,{'Number of function evaluations',strrep(obj.app.dropD(2).Value,'_',' '),[]});
+                    end
+                end
+            end
+        end
+        %% Create the gif
+        function cb_toolbutton1(obj,~,~)
+            if ~isempty(obj.data)
+                [file,folder] = uiputfile({'*.gif','GIF image'},'');
+                figure(obj.platmetaxGUI.app.figure);
+                if file ~= 0
+                    try
+                        filename = fullfile(folder,file);
+                        figure('NumberTitle','off','Name','Figure for creating the gif');
+                        for i = linspace(0,1,20)
+                            obj.app.slider.Value = i;
+                            obj.cb_slider([],[],gca);
+                            drawnow('limitrate');
+                            [I,map] = rgb2ind(print('-RGBImage'),20);
+                            if i == 0
+                                imwrite(I,map,filename,'gif','Loopcount',inf,'DelayTime',0.2);
+                            else
+                                imwrite(I,map,filename,'gif','WriteMode','append','DelayTime',0.2);
+                            end
+                        end
+                        delete(gcf);
+                    catch
+                        uialert(obj.platmetaxGUI.app.figure,sprintf('Fail to save the gif to %s.',filename),'Error');
+                        return;
+                    end
+                end
+            end
+        end
+        %% Open in new figure
+        function cb_toolbutton2(obj,~,~)
+            if ~isempty(obj.data)
+                if isempty(get(gcf,'CurrentAxes'))
+                    axes('FontName',obj.app.axes.FontName,'FontSize',obj.app.axes.FontSize,'NextPlot',obj.app.axes.NextPlot,'Box',obj.app.axes.Box,'View',obj.app.axes.View);
+                    copyobj(obj.app.axes.Children,gca);
+                else
+                    h = copyobj(obj.app.axes.Children,gca);
+                    for i = 1 : length(h)
+                        if strcmp(h(i).Type,'line')
+                        	set(h(i),'Color',rand(1,3),'Markerfacecolor',rand(1,3));
+                        end
+                    end
+                end
+                axis tight;
+                Data = arrayfun(@(s){s.XData,s.YData,s.ZData},get(gca,'Children'),'UniformOutput',false);
+                assignin('base','Data',cat(1,Data{:}));
+            end
+        end
+    end
+end
+
+function Str = GetSetProblem(obj,Str)
+    if nargout > 0  % Get the problem
+        Str{1} = obj.app.editB(1).Value;              	% Encoding
+        Str{2} = obj.app.editB(2).Value;             	% Lower bound
+        Str{3} = obj.app.editB(3).Value;              	% Upper bound
+        if obj.app.grid(2).RowHeight{8} > 0          	% Data
+            Str{4} = obj.app.editB(4).Value;
+        else
+            Str{4} = '';
+        end
+        if obj.app.grid(2).RowHeight{10} > 0          	% Initialization function
+            Str{5} = obj.app.editB(5).Value;
+        else
+            Str{5} = '';
+        end
+        if obj.app.grid(2).RowHeight{12} > 0           	% Repair function or evaluation function
+            Str{6} = obj.app.editB(6).Value;
+        else
+            Str{6} = '';
+        end
+        if strcmp(obj.app.buttonB(10).Text,'Integrate')
+            Str{7} = get([obj.pro.edit],'Value');     	% Objective functions
+            if ~iscell(Str{7}); Str{7} = Str(7); end
+            Str{8} = get([obj.con.edit],'Value');     	% Constraint functions
+            if ~iscell(Str{8}); Str{8} = Str(8); end
+        end
+    end
+    if nargin > 1	% Set the problem
+        obj.app.editB(1).Value  = Str{1};               % Number of decision variables
+        obj.app.editB(2).Value  = Str{2};               % Lower bound
+        obj.app.editB(3).Value  = Str{3};            	% Upper bound
+        obj.app.editB(4).Value  = Str{4};               % Data
+        obj.cb_updateProblem([],[],1*(-1)^isempty(obj.app.editB(4).Value),1);
+        obj.app.editB(5).Value  = Str{5};            	% Initialization function
+        obj.cb_updateProblem([],[],2*(-1)^isempty(obj.app.editB(5).Value),1);
+        if length(Str) > 6
+            if ~strcmp(obj.app.buttonB(10).Text,'Integrate')
+                obj.cb_updateProblem([],[],6,1);
+            end
+            obj.app.editB(6).Value = Str{6};         	% Repair function
+            obj.cb_updateProblem([],[],3*(-1)^isempty(obj.app.editB(6).Value),1);
+            for i = 1 : length(obj.pro)                	% Objective functions
+                obj.cb_updateProblem([],[],-4,1);
+            end
+            if ~iscell(Str{7}); Str{7} = Str(7); end
+            Str{7}(cellfun(@isempty,Str{7})) = [];
+            for i = 1 : length(Str{7})
+                obj.cb_updateProblem([],[],4,1);
+                obj.pro(end).edit.Value = Str{7}{i};
+            end
+            for i = 1 : length(obj.con)             	% Constraint functions
+                obj.cb_updateProblem([],[],-5,1);
+            end
+            if ~iscell(Str{8}); Str{8} = Str(8); end
+            Str{8}(cellfun(@isempty,Str{8})) = [];
+            for i = 1 : length(Str{8})
+                obj.cb_updateProblem([],[],5,1);
+                obj.con(end).edit.Value = Str{8}{i};
+            end
+        else
+            if strcmp(obj.app.buttonB(10).Text,'Integrate')
+                obj.cb_updateProblem([],[],6,1);
+            end
+            obj.app.editB(6).Value = Str{6};            % Evaluation function
+        end
+        obj.cb_updateFilter();
+    end
+end

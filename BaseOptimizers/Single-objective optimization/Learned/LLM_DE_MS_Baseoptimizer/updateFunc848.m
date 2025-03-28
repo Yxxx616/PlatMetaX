@@ -1,0 +1,78 @@
+% MATLAB Code
+function [offspring] = updateFunc848(popdecs, popfits, cons)
+    [NP, D] = size(popdecs);
+    lb = -100 * ones(1, D);
+    ub = 100 * ones(1, D);
+    eps = 1e-12;
+    
+    % Elite selection based on feasibility and fitness
+    feasible = cons <= 0;
+    if any(feasible)
+        [~, elite_idx] = min(popfits(feasible));
+        elite = popdecs(feasible(elite_idx), :);
+    else
+        [~, elite_idx] = min(cons);
+        elite = popdecs(elite_idx, :);
+    end
+    
+    % Identify best and worst solutions
+    [~, best_idx] = min(popfits);
+    [~, worst_idx] = max(popfits);
+    best = popdecs(best_idx, :);
+    worst = popdecs(worst_idx, :);
+    
+    % Create direction vectors
+    elite_rep = repmat(elite, NP, 1);
+    v1 = elite_rep - popdecs;
+    
+    best_rep = repmat(best, NP, 1);
+    worst_rep = repmat(worst, NP, 1);
+    v2 = best_rep - worst_rep;
+    
+    % Constraint-guided direction
+    if any(feasible) && any(~feasible)
+        feasible_mean = mean(popdecs(feasible,:), 1);
+        infeasible_mean = mean(popdecs(~feasible,:), 1);
+        v3 = repmat(feasible_mean - infeasible_mean, NP, 1);
+    else
+        v3 = zeros(NP, D);
+    end
+    
+    % Random pairs for diversity
+    r1 = randi(NP, NP, 1);
+    r2 = randi(NP, NP, 1);
+    while any(r1 == r2)
+        r2(r1 == r2) = randi(NP, sum(r1 == r2), 1);
+    end
+    v4 = popdecs(r1,:) - popdecs(r2,:);
+    
+    % Adaptive weights
+    f_min = min(popfits); f_max = max(popfits);
+    c_min = min(cons); c_max = max(cons);
+    w_f = (popfits - f_min) / (f_max - f_min + eps);
+    w_c = (cons - c_min) / (c_max - c_min + eps);
+    
+    % Adaptive parameters with balanced exploration
+    F = 0.5 + 0.3 * (1 - w_c) .* (1 - w_f);
+    CR = 0.9 - 0.5 * w_f;
+    
+    % Mutation with balanced components
+    mutant = popdecs + F .* (v1 + w_f.*v2 + w_c.*v3 + (1-w_f-w_c).*v4);
+    
+    % Crossover with jitter
+    mask = rand(NP, D) < CR(:, ones(1, D));
+    j_rand = randi(D, NP, 1);
+    mask = mask | bsxfun(@eq, (1:D), j_rand);
+    
+    offspring = popdecs;
+    offspring(mask) = mutant(mask);
+    
+    % Boundary handling with reflection and clamping
+    lb_rep = repmat(lb, NP, 1);
+    ub_rep = repmat(ub, NP, 1);
+    below_lb = offspring < lb_rep;
+    above_ub = offspring > ub_rep;
+    offspring(below_lb) = 2*lb_rep(below_lb) - offspring(below_lb);
+    offspring(above_ub) = 2*ub_rep(above_ub) - offspring(above_ub);
+    offspring = max(min(offspring, ub_rep), lb_rep);
+end

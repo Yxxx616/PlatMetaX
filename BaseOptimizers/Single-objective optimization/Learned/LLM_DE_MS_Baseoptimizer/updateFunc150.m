@@ -1,0 +1,71 @@
+% MATLAB Code
+function [offspring] = updateFunc150(popdecs, popfits, cons)
+    [NP, D] = size(popdecs);
+    offspring = zeros(NP, D);
+    lb = -100 * ones(1, D);
+    ub = 100 * ones(1, D);
+    
+    % Calculate weights based on fitness and constraints
+    median_fit = median(popfits);
+    weights = 1./(1 + abs(popfits - median_fit) + abs(cons));
+    [~, sorted_idx] = sort(weights, 'descend');
+    elite_idx = sorted_idx(1:ceil(0.3*NP));
+    elite = popdecs(elite_idx, :);
+    
+    % Adaptive parameters
+    max_cons = max(abs(cons)) + eps;
+    F = 0.5 + 0.3 * cos(pi * abs(cons)/max_cons);
+    CR = 0.9 - 0.5 * tanh(5 * abs(cons)/max_cons);
+    
+    % Generate random indices
+    rand_idx = randi(NP, NP, 4);
+    r1 = rand_idx(:,1); r2 = rand_idx(:,2);
+    r3 = rand_idx(:,3); r4 = rand_idx(:,4);
+    
+    % Select random elite for each individual
+    elite_rand = elite_idx(randi(length(elite_idx), NP));
+    
+    % Direction vectors
+    exploit_prob = 0.6 - 0.3 * (abs(cons)/max_cons);
+    exploit_mask = rand(NP,1) < exploit_prob;
+    
+    d = zeros(NP, D);
+    d(exploit_mask,:) = popdecs(r1(exploit_mask),:) - popdecs(r2(exploit_mask),:) + ...
+                        F(exploit_mask).*(popdecs(r3(exploit_mask),:) - popdecs(r4(exploit_mask),:));
+    d(~exploit_mask,:) = popdecs(elite_rand(~exploit_mask),:) - popdecs(~exploit_mask,:) + ...
+                         F(~exploit_mask).*(popdecs(r1(~exploit_mask),:) - popdecs(r2(~exploit_mask),:));
+    
+    % Mutation with feasibility consideration
+    feasible = cons < median(cons);
+    v = zeros(NP, D);
+    v(feasible,:) = popdecs(feasible,:) + F(feasible).*d(feasible,:);
+    v(~feasible,:) = 0.5*(popdecs(~feasible,:) + popdecs(elite_rand(~feasible),:)) + ...
+                     F(~feasible).*d(~feasible,:);
+    
+    % Crossover
+    CR_mat = repmat(CR, 1, D);
+    j_rand = randi(D, NP, 1);
+    mask = rand(NP, D) < CR_mat;
+    mask(sub2ind([NP, D], (1:NP)', j_rand)) = true;
+    
+    offspring = popdecs;
+    offspring(mask) = v(mask);
+    
+    % Boundary handling with adaptive reflection
+    lb_rep = repmat(lb, NP, 1);
+    ub_rep = repmat(ub, NP, 1);
+    
+    % For feasible solutions, reflect towards elite
+    reflect_mask = repmat(feasible, 1, D) & ((offspring < lb_rep) | (offspring > ub_rep));
+    offspring(reflect_mask) = 0.5*(offspring(reflect_mask) + popdecs(elite_rand,:)(reflect_mask));
+    
+    % For infeasible solutions, random reinitialization with bias toward feasible region
+    infeasible_mask = repmat(~feasible, 1, D);
+    reinit_mask = infeasible_mask & ((offspring < lb_rep) | (offspring > ub_rep));
+    offspring(reinit_mask) = lb_rep(reinit_mask) + rand(sum(reinit_mask(:)),1).* ...
+                            (ub_rep(reinit_mask) - lb_rep(reinit_mask));
+    
+    % Final projection for any remaining violations
+    remaining = (offspring < lb_rep) | (offspring > ub_rep);
+    offspring(remaining) = max(min(offspring(remaining), ub_rep(remaining)), lb_rep(remaining));
+end

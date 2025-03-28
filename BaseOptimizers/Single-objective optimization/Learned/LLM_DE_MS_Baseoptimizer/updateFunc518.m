@@ -1,0 +1,71 @@
+% MATLAB Code
+function [offspring] = updateFunc518(popdecs, popfits, cons)
+    [NP, D] = size(popdecs);
+    lb = -100 * ones(1, D);
+    ub = 100 * ones(1, D);
+    eps = 1e-12;
+    
+    % Normalize fitness and constraints
+    f_min = min(popfits);
+    f_max = max(popfits);
+    norm_fit = (popfits - f_min) / (f_max - f_min + eps);
+    
+    abs_cons = abs(cons);
+    c_max = max(abs_cons);
+    norm_con = abs_cons / (c_max + eps);
+    
+    % Calculate combined weights with enhanced balance
+    w = (1 - norm_fit).^1.8 .* (1 + norm_con).^0.3;
+    
+    % Elite selection with constraint consideration
+    feasible = cons <= 0;
+    if any(feasible)
+        [~, elite_idx] = min(popfits(feasible));
+        elite = popdecs(feasible,:);
+        elite = elite(elite_idx,:);
+    else
+        [~, elite_idx] = min(norm_fit + 0.6*norm_con);
+        elite = popdecs(elite_idx,:);
+    end
+    
+    % Random indices with better diversity
+    idx = randperm(NP);
+    r1 = mod(idx, NP) + 1;
+    r2 = mod(idx+floor(NP/3), NP) + 1;
+    
+    % Adaptive mutation parameters
+    F1 = 0.9 * w.^1.5;
+    F2 = 0.5 * (1 - w).^0.7;
+    F3 = 0.3 * sqrt(w);
+    sigma = 0.2 * (ub(1) - lb(1)) * (1 - w);
+    
+    % Enhanced vectorized mutation
+    elite_dir = repmat(elite, NP, 1) - popdecs;
+    diff_dir = popdecs(r1,:) - popdecs(r2,:);
+    cons_factor = repmat(1 + norm_con, 1, D);
+    pert_dir = repmat(sigma, 1, D) .* randn(NP, D);
+    
+    offspring = popdecs + repmat(F1, 1, D) .* elite_dir + ...
+                repmat(F2, 1, D) .* diff_dir .* cons_factor + ...
+                repmat(F3, 1, D) .* pert_dir;
+    
+    % Smart boundary handling
+    lb_rep = repmat(lb, NP, 1);
+    ub_rep = repmat(ub, NP, 1);
+    
+    below = offspring < lb_rep;
+    above = offspring > ub_rep;
+    
+    % Adaptive reflection with weight consideration
+    rand_factor = repmat(w, 1, D);
+    reflected = (lb_rep + rand_factor .* (popdecs - lb_rep)) .* below + ...
+                (ub_rep - rand_factor .* (ub_rep - popdecs)) .* above;
+    
+    offspring = offspring .* (~below & ~above) + reflected;
+    
+    % Final clipping with small probability of random reinitialization
+    rand_mask = rand(NP, D) < 0.02;
+    rand_vals = lb_rep + rand(NP, D) .* (ub_rep - lb_rep);
+    offspring = offspring .* ~rand_mask + rand_vals .* rand_mask;
+    offspring = max(min(offspring, ub_rep), lb_rep);
+end

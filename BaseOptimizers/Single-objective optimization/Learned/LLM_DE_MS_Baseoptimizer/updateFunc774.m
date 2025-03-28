@@ -1,0 +1,93 @@
+% MATLAB Code
+function [offspring] = updateFunc774(popdecs, popfits, cons)
+    [NP, D] = size(popdecs);
+    lb = -100 * ones(1, D);
+    ub = 100 * ones(1, D);
+    eps = 1e-12;
+    
+    % Identify elite solution
+    feasible = cons <= 0;
+    if any(feasible)
+        [~, elite_idx] = min(popfits(feasible));
+        elite = popdecs(feasible(elite_idx), :);
+    else
+        [~, elite_idx] = min(cons);
+        elite = popdecs(elite_idx, :);
+    end
+    
+    % Identify extreme solutions
+    [~, low_cons_idx] = min(cons);
+    [~, high_cons_idx] = max(cons);
+    [~, low_fit_idx] = min(popfits);
+    [~, high_fit_idx] = max(popfits);
+    
+    x_low_cons = popdecs(low_cons_idx, :);
+    x_high_cons = popdecs(high_cons_idx, :);
+    x_low_fit = popdecs(low_fit_idx, :);
+    x_high_fit = popdecs(high_fit_idx, :);
+    
+    % Normalize fitness and constraints
+    f_min = min(popfits); f_max = max(popfits);
+    c_min = min(cons); c_max = max(cons);
+    
+    w_f = (popfits - f_min) / (f_max - f_min + eps);
+    w_c = (cons - c_min) / (c_max - c_min + eps);
+    
+    % Generate random indices (vectorized)
+    all_indices = repmat(1:NP, NP, 1);
+    mask = ~eye(NP);
+    available = arrayfun(@(i) find(mask(i,:)), 1:NP, 'UniformOutput', false);
+    
+    r1 = cellfun(@(x) x(randi(length(x))), available);
+    temp = arrayfun(@(i) setdiff(available{i}, r1(i)), 1:NP, 'UniformOutput', false);
+    r2 = cellfun(@(x) x(randi(length(x))), temp);
+    
+    % Compute direction vectors
+    elite_rep = repmat(elite, NP, 1);
+    low_cons_rep = repmat(x_low_cons, NP, 1);
+    high_cons_rep = repmat(x_high_cons, NP, 1);
+    low_fit_rep = repmat(x_low_fit, NP, 1);
+    high_fit_rep = repmat(x_high_fit, NP, 1);
+    
+    v_elite = elite_rep - popdecs;
+    v_cons = low_cons_rep - high_cons_rep;
+    v_fit = low_fit_rep - high_fit_rep;
+    v_rand = popdecs(r1,:) - popdecs(r2,:);
+    
+    % Adaptive weights (improved coefficients)
+    alpha = 0.6 * (1 - repmat(w_f, 1, D)) + 0.1 * rand(NP, D);
+    beta = 0.4 * repmat(w_c, 1, D) + 0.1 * rand(NP, D);
+    gamma = 0.4 * (1 - repmat(w_c, 1, D)) + 0.1 * rand(NP, D);
+    delta = 0.4 * repmat(w_f, 1, D) + 0.1 * rand(NP, D);
+    
+    % Combined mutation vector
+    v = alpha .* v_elite + beta .* v_cons + gamma .* v_fit + delta .* v_rand;
+    
+    % Dynamic scaling factor (improved range)
+    F = 0.7 + 0.2 * tanh(5 * repmat(w_c, 1, D));
+    
+    % Mutation
+    mutant = popdecs + F .* v;
+    
+    % Constraint-aware crossover (improved CR range)
+    CR = 0.9 - 0.4 * repmat(w_c, 1, D);
+    mask = rand(NP, D) < CR;
+    j_rand = randi(D, NP, 1);
+    mask = mask | bsxfun(@eq, (1:D), j_rand);
+    
+    offspring = popdecs;
+    offspring(mask) = mutant(mask);
+    
+    % Boundary handling with reflection
+    lb_rep = repmat(lb, NP, 1);
+    ub_rep = repmat(ub, NP, 1);
+    
+    below_lb = offspring < lb_rep;
+    above_ub = offspring > ub_rep;
+    
+    offspring(below_lb) = 2*lb_rep(below_lb) - offspring(below_lb);
+    offspring(above_ub) = 2*ub_rep(above_ub) - offspring(above_ub);
+    
+    % Final projection
+    offspring = max(min(offspring, ub_rep), lb_rep);
+end

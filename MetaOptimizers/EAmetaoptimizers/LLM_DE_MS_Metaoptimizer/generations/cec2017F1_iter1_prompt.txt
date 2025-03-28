@@ -1,0 +1,21 @@
+
+    **Task**: Design a novel and effective mutation equality for this optimization problem according to the relationship among the decision vectors [1,2,3;4,5,6], fitness vectors [1;2], and constraints violation [0;1] for this population to generate offspring.
+    
+    **Requirement**:
+    1. Output the update equality or rules using mathematics equality or pseudo code in latex format.
+    2. Output a correct and complete MATLAB code file named 'updateFunc1.m', the function need to define as follows:
+       function [offspring] = updateFunc1(popdecs, popfits, cons)
+    2. The update function prefers vectorization operations and avoiding using toolbox functions.
+    
+    **History Feedback**:
+    Nothing
+    
+    **Output Farmat**:
+    %%latexStart
+    % update rule
+    %%latexEnd
+
+    %%matlabStart
+    % MATLAB Code
+    %%matlabEnd
+    

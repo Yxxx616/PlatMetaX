@@ -1,0 +1,85 @@
+% MATLAB Code
+function [offspring] = updateFunc771(popdecs, popfits, cons)
+    [NP, D] = size(popdecs);
+    lb = -100 * ones(1, D);
+    ub = 100 * ones(1, D);
+    eps = 1e-12;
+    
+    % Identify elite solution (best feasible or least infeasible)
+    feasible = cons <= 0;
+    if any(feasible)
+        [~, elite_idx] = min(popfits(feasible));
+        elite = popdecs(feasible(elite_idx), :);
+    else
+        [~, elite_idx] = min(cons);
+        elite = popdecs(elite_idx, :);
+    end
+    
+    % Identify extreme constraint solutions
+    [~, low_cons_idx] = min(cons);
+    [~, high_cons_idx] = max(cons);
+    x_low_cons = popdecs(low_cons_idx, :);
+    x_high_cons = popdecs(high_cons_idx, :);
+    
+    % Normalize fitness and constraints
+    f_min = min(popfits); f_max = max(popfits);
+    c_min = min(cons); c_max = max(cons);
+    
+    w_f = (popfits - f_min) / (f_max - f_min + eps);
+    w_c = (cons - c_min) / (c_max - c_min + eps);
+    
+    % Generate random indices ensuring r1 ≠ r2 ≠ i
+    r1 = zeros(NP, 1);
+    r2 = zeros(NP, 1);
+    for i = 1:NP
+        available = setdiff(1:NP, i);
+        r1(i) = available(randi(length(available)));
+        available = setdiff(available, r1(i));
+        r2(i) = available(randi(length(available)));
+    end
+    
+    % Compute direction vectors
+    elite_rep = repmat(elite, NP, 1);
+    low_cons_rep = repmat(x_low_cons, NP, 1);
+    high_cons_rep = repmat(x_high_cons, NP, 1);
+    
+    v_elite = elite_rep - popdecs;
+    v_rand = popdecs(r1,:) - popdecs(r2,:);
+    v_cons = low_cons_rep - high_cons_rep;
+    
+    % Adaptive weights
+    alpha = 0.6 * (1 - repmat(w_f, 1, D)) + 0.2 * rand(NP, D);
+    beta = 0.4 * repmat(w_c, 1, D) + 0.2 * rand(NP, D);
+    gamma = 0.4 * (1 - repmat(w_c, 1, D)) + 0.2 * rand(NP, D);
+    
+    % Combined mutation vector
+    v = alpha .* v_elite + beta .* v_cons + gamma .* v_rand;
+    
+    % Constraint-adaptive scale factor
+    F = 0.5 + 0.3 * tanh(4 * repmat(w_c, 1, D));
+    
+    % Mutation
+    mutant = popdecs + F .* v;
+    
+    % Constraint-adaptive crossover
+    CR = 0.85 - 0.35 * repmat(w_c, 1, D);
+    mask = rand(NP, D) < CR;
+    j_rand = randi(D, NP, 1);
+    mask = mask | bsxfun(@eq, (1:D), j_rand);
+    
+    offspring = popdecs;
+    offspring(mask) = mutant(mask);
+    
+    % Boundary handling with reflection
+    lb_rep = repmat(lb, NP, 1);
+    ub_rep = repmat(ub, NP, 1);
+    
+    below_lb = offspring < lb_rep;
+    above_ub = offspring > ub_rep;
+    
+    offspring(below_lb) = 2*lb_rep(below_lb) - offspring(below_lb);
+    offspring(above_ub) = 2*ub_rep(above_ub) - offspring(above_ub);
+    
+    % Final projection
+    offspring = max(min(offspring, ub_rep), lb_rep);
+end

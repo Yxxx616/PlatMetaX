@@ -3,7 +3,7 @@ function [trainingSet,testingSet] = splitProblemSet(problemset)
 pSetting = problemset.pSetting;
 switch problemset.psName
     case 'TSPs'
-        tspInstancesDir = 'TSP_Instances';
+        tspInstancesDir = 'Data\TSP_Instances';
         if ~exist(tspInstancesDir, 'dir')
             mkdir(tspInstancesDir);
         end

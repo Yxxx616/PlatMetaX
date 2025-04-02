@@ -1,6 +1,7 @@
 # PlatMetaX
 **A Matlab platform for meta-black-box optimization, covering rl-based, sl-based, ec-based meta-learning.**
-![PlatMetaX Logo](https://github.com/Yxxx616/PlatMetaX/GUI/logo.png)
+![PlatMetaX Logo](https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/platmetaxLOGO2.0.png)
+
 ![GitHub](https://img.shields.io/github/license/Yxxx616/PlatMetaX)
 ![MATLAB Version](https://img.shields.io/badge/MATLAB-R2021a%2B-orange)
 ![Release](https://img.shields.io/badge/release-2.0-success)
@@ -30,8 +31,9 @@ PlatMetaX 配备了图形用户界面，使得实验测试和结果可视化更�
 - GUI只能用于测试。
 
 # V2.0
-- EL-based meta-optimizers引入基于LLM的元优化器,通过【Matlab调用python->python调用大模型API】实现。
+- EL-based meta-optimizers引入基于LLM的元优化器,通过【Matlab调用python->python调用大模型API】实现。（需要配置python环境）
 - 修改了RL-based optimizer的实例化逻辑，使其可以在不同MATLAB版本中运行。
+- 增加了transformer模型作为元优化器（详见Transformer_DE_Sol_Metaoptimizer.m）
 
 
 ## Quick Start
@@ -68,6 +70,10 @@ platmetax.m
 
 # PlatMetaX Copyright
 Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX for research purposes. All publications which use this platform or MetaBBO code in the platform should acknowledge the use of "PlatMetaX" and reference "Xu Yang, and Rui Wang. PlatMetaX: A MATLAB platform for meta-black-box optimization, https://doi.org/10.48550/arXiv.2503.22722".
+
+## Contact us
+join us：![QQ mob](https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/qqmobCode.png)
+email us：501216619@qq.com
 
 - *声明：非完全原创，基于platEMO平台*
 - *建议：有PlatEMO基础的同学食用更佳*

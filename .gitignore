@@ -1,1 +1,3 @@
-Data/
+Data/*
+AgentModel/*
+*.asv

@@ -53,14 +53,14 @@ platmetax.m
 - platmetax('task', @Train, 'metabboComps', 'DDPG_DE_F', 'problemSet','BBOB','N',50,'D',10)
 - platmetax('task', @Train, 'metabboComps', 'DE_DE_FCR', 'problemSet','BBOBEC','N',50,'D',10)
 2. 测试训练好的meta-optimizer
-%   （1）测试RL-based meta-optimizer：DDPG_DE_F（实现使用DDPG在线调整DE参数F）
-%   platmetabbo('task', @Test, 'metabboComps', 'DDPG_DE_F', 'problemSet','BBOB') 
-%   测试RL-based meta-optimizer：DQN_DE_MS（实现使用DQN在线调整DE的变异策略MS）
-%   platmetabbo('task', @Test, 'metabboComps', 'DQN_DE_MS', 'problemSet','BBOB')
-%   （2）测试SL-based meta-optimizer：MLP_Alg_Rec（实现使用MLP神经网络对不同TSP示例算法推荐ABC/CSO/DE/PSO/SA）
-%   platmetabbo('task', @Test, 'metabboComps', 'MLP_Alg_Rec', 'problemSet','TSPs')
-%   （3）测试EC-based meta-optimizer：DE_DE_FCR（实现使用DE离线调整DE参数F和CR）
-%   platmetabbo('task', @Test, 'metabboComps', 'DE_DE_FCR', 'problemSet','BBOB')
+- （1）测试RL-based meta-optimizer：DDPG_DE_F（实现使用DDPG在线调整DE参数F）
+-  platmetabbo('task', @Test, 'metabboComps', 'DDPG_DE_F', 'problemSet','BBOB') 
+-  测试RL-based meta-optimizer：DQN_DE_MS（实现使用DQN在线调整DE的变异策略MS）
+-  platmetabbo('task', @Test, 'metabboComps', 'DQN_DE_MS', 'problemSet','BBOB')
+- （2）测试SL-based meta-optimizer：MLP_Alg_Rec（实现使用MLP神经网络对不同TSP示例算法推荐ABC/CSO/DE/PSO/SA）
+-  platmetabbo('task', @Test, 'metabboComps', 'MLP_Alg_Rec', 'problemSet','TSPs')
+- （3）测试EC-based meta-optimizer：DE_DE_FCR（实现使用DE离线调整DE参数F和CR）
+- platmetabbo('task', @Test, 'metabboComps', 'DE_DE_FCR', 'problemSet','BBOB')
 
 ## NOTE
 1. 写自己的MetaBBO时需要先定义base-optimizer，思考参数化哪部分（学习base-optimizer的什么东西），然后设计metaoptimizer的输入也就是state，然后根据state的大小在Environment中定义observationInfo和actionInfo。
@@ -72,7 +72,11 @@ platmetax.m
 Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX for research purposes. All publications which use this platform or MetaBBO code in the platform should acknowledge the use of "PlatMetaX" and reference "Xu Yang, and Rui Wang. PlatMetaX: A MATLAB platform for meta-black-box optimization, https://doi.org/10.48550/arXiv.2503.22722".
 
 ## Contact us
-join us：![QQ mob](https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/qqmobCode.png)
+join us：
+<p style="text-align: center">
+  <img src="https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/qqmobCode.png" alt="qq mob">
+</p>
+
 email us：501216619@qq.com
 
 - *声明：非完全原创，基于platEMO平台*

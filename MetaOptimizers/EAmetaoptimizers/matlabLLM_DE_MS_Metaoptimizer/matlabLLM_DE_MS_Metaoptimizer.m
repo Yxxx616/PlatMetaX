@@ -1,7 +1,4 @@
 classdef matlabLLM_DE_MS_Metaoptimizer < rl.agent.CustomAgent
-    % MetaOptimizerRL 基于强化学习的元优化器模板类
-    % 继承自rl.agent.CustomAgent，实现必要接口
-    
     properties
         metaTable
         metaObj
@@ -18,7 +15,6 @@ classdef matlabLLM_DE_MS_Metaoptimizer < rl.agent.CustomAgent
     methods
         function obj = matlabLLM_DE_MS_Metaoptimizer(observationInfo, actionInfo)
             obj = obj@rl.agent.CustomAgent();
-            addpath('E:\yx\toolbox\llmMatlab\llms-with-matlab');
             obj.ObservationInfo = observationInfo;
             obj.ActionInfo = actionInfo;
             obj.history = {};

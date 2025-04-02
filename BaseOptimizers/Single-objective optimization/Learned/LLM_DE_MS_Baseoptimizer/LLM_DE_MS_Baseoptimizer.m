@@ -1,17 +1,10 @@
 classdef LLM_DE_MS_Baseoptimizer < BASEOPTIMIZER
 % <2025> <single> <real/integer> <large/none> <constrained/none> <learned/none>
-% Differential evolution
-% CR --- 0.9 --- Crossover constant
-% F  --- 0.5 --- Mutation factor
 
-%------------------------------- Reference --------------------------------
-% R. Storn and K. Price, Differential evolution-a simple and efficient
-% heuristic for global optimization over continuous spaces, Journal of
-% Global Optimization, 1997, 11(4): 341-359.
 %------------------------------- Copyright --------------------------------
-% Copyright (c) 2024 BIMK Group. You are free to use the PlatEMO for
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX for
 % research purposes. All publications which use this platform or any code
-% in the platform should acknowledge the use of "PlatEMO" and reference "Ye
+% in the platform should acknowledge the use of "PlatMetaX" and reference "Ye
 % Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform
 % for evolutionary multi-objective optimization [educational forum], IEEE
 % Computational Intelligence Magazine, 2017, 12(4): 73-87".
@@ -22,9 +15,6 @@ classdef LLM_DE_MS_Baseoptimizer < BASEOPTIMIZER
         NP
         baseperformance
         curBP
-        
-        CR
-        F
     end
     methods
         function init(this,problem)     

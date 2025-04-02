@@ -137,7 +137,7 @@ classdef Transformer_DE_UpEq_Baseoptimizer < BASEOPTIMIZER
         end
         function [best, idx] = findBestIndividual(this)
             % 找到当前最优解
-            [~, idx] = min(this.Population.thiss);
+            [~, idx] = min(this.Population.objs);
             best = this.Population(idx);
         end
     end

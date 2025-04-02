@@ -97,9 +97,9 @@ classdef uilist < handle
             end
             % Generate all the items
             if type > 0
-                color = [.2 .4 .7];
+                color = [0.93,0.69,0.13];
             else
-                color = [.9 .5 .2];
+                color = [0.30,0.75,0.93];
             end
             item.cite  = cite;
             item.type  = type;
@@ -179,7 +179,12 @@ classdef uilist < handle
             set([obj.items.button],'Enable',value);
             edits = [obj.items.edit];
             set(edits,'Enable',value);
-            set(edits(~cell2mat(get(edits,'UserData'))),'Enable','off');
+            userDataResult = get(edits,'UserData');
+%             20250331修改，把基本类型转成cell元胞，解决修改布局之后报错的问题
+            if ~iscell(userDataResult)
+                userDataResult ={get(edits,'UserData')};
+            end
+            set(edits(~cell2mat(userDataResult)),'Enable','off');
         end
     end
     methods(Access = private)

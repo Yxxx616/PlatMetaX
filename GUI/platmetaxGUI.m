@@ -23,24 +23,33 @@ classdef platmetaxGUI < handle
             % Load the data
             obj.icon = load(fullfile(fileparts(mfilename('fullpath')),'platmetaxGUI'),'-mat');
             obj.readList();
+            scriptDir = fileparts(mfilename('fullpath'));
+            % 构建图标文件的完整路径
+            iconPath1 = fullfile(scriptDir, 'testModule.png');
+            iconPath2 = fullfile(scriptDir, 'appModule.png');
+            iconPath3 = fullfile(scriptDir, 'expModule.png');
+            iconPath4 = fullfile(scriptDir, 'platmetaxLOGO2.0.png');
+            iconPath5 = fullfile(scriptDir, 'logo.png');
             
             % Create the window
-            obj.app.figure   = uifigure('Name','PlatMetaX v1.0','Position',[0 0 1200 650],'Interruptible','off','BusyAction','cancel','Visible','off','WindowButtonMotionFcn',@(~,~)[]);
+            obj.app.figure   = uifigure('Name','PlatMetaX v1.0','Position',[0 0 1380 870],'Interruptible','off','Icon',iconPath5,'BusyAction','cancel','Visible','off','WindowButtonMotionFcn',@(~,~)[]);
             obj.app.maingrid = uigridlayout(obj.app.figure,'RowHeight',{25,80,'1x'},'ColumnWidth',{'1x'},'Padding',[0 0 0 0],'RowSpacing',0);
             
             % Create the tab buttons
-            obj.app.grid(1)    = platmetaxGUI.APP(1,1,uigridlayout(obj.app.maingrid,'RowHeight',{'1x'},'ColumnWidth',{80,80,'1x',100},'Padding',[0 0 0 0],'ColumnSpacing',0,'BackgroundColor',[0 .25 .45]));
-            tempPanel          = platmetaxGUI.APP(1,1,uipanel(obj.app.grid(1),'BorderType','none','BackgroundColor',[0 .25 .45]));
+            obj.app.grid(1)    = platmetaxGUI.APP(1,1,uigridlayout(obj.app.maingrid,'RowHeight',{'1x'},'ColumnWidth',{80,80,'1x',100},'Padding',[0 0 0 0],'ColumnSpacing',0,'BackgroundColor',[0.07,0.62,1.00]));
+            tempPanel          = platmetaxGUI.APP(1,1,uipanel(obj.app.grid(1),'BorderType','none','BackgroundColor',[0.07,0.62,1.00]));
             obj.app.buttonT(1) = uibutton(tempPanel,'Position',[-5 -5 90 35],'Text','Modules','FontSize',14,'FontColor','k','BackgroundColor',[.94 .94 .94],'ButtonpushedFcn',{@obj.cb_tab,1});
-            tempPanel          = platmetaxGUI.APP(1,2,uipanel(obj.app.grid(1),'BorderType','none','BackgroundColor',[0 .25 .45]));
+            tempPanel          = platmetaxGUI.APP(1,2,uipanel(obj.app.grid(1),'BorderType','none','BackgroundColor',[0.07,0.62,1.00]));
 %             tempImage          = uiimage(tempPanel,'Position',[0 3 99 21],'ImageSource',obj.icon.bar,'ScaleMethod','fill');
             
             % Create the menu
             obj.app.grid(2)   = platmetaxGUI.APP(2,1,uigridlayout(obj.app.maingrid,'RowHeight',{'1x',13,1},'ColumnWidth',{1,75,75,75,75,'1x',250,13,1},'Padding',[0 0 0 5],'RowSpacing',5));
-            obj.app.button(1) = platmetaxGUI.APP([1 2],2,uibutton(obj.app.grid(2),'Text',{'Test','Module'},'VerticalAlignment','bottom','FontSize',11,'Icon',obj.icon.test,'IconAlignment','top','Tooltip',{'Test one algorithm on a problem with specified parameter settings.','You can analyse the result and study the performance of the algorithm from various aspects.'},'ButtonpushedFcn',{@obj.cb_module,1}));
-            obj.app.button(2) = platmetaxGUI.APP([1 2],3,uibutton(obj.app.grid(2),'Text',{'Application','Module'},'VerticalAlignment','bottom','FontSize',11,'Icon',obj.icon.application,'IconAlignment','top','Tooltip',{'Use algorithms to solve your own problem.','You can design your own problem and solve it by the suggested algorithms.'},'ButtonpushedFcn',{@obj.cb_module,2}));
-            obj.app.button(3) = platmetaxGUI.APP([1 2],4,uibutton(obj.app.grid(2),'Text',{'Experiment','Module'},'VerticalAlignment','bottom','FontSize',11,'Icon',obj.icon.experiment,'IconAlignment','top','Tooltip',{'Do experiment on multiple algorithms and problems.','You can observe the statistical results shown in a table and save it as an Excel or LaTeX table.'},'ButtonpushedFcn',{@obj.cb_module,3}));
             
+            obj.app.button(1) = platmetaxGUI.APP([1 2],2,uibutton(obj.app.grid(2),'Text',{'Test','Module'},'VerticalAlignment','bottom','FontSize',11,'Icon',iconPath1,'IconAlignment','top','Tooltip',{'Test one algorithm on a problem with specified parameter settings.','You can analyse the result and study the performance of the algorithm from various aspects.'},'ButtonpushedFcn',{@obj.cb_module,1}));
+            obj.app.button(2) = platmetaxGUI.APP([1 2],3,uibutton(obj.app.grid(2),'Text',{'Application','Module'},'VerticalAlignment','bottom','FontSize',11,'Icon',iconPath2,'IconAlignment','top','Tooltip',{'Use algorithms to solve your own problem.','You can design your own problem and solve it by the suggested algorithms.'},'ButtonpushedFcn',{@obj.cb_module,2}));
+            obj.app.button(3) = platmetaxGUI.APP([1 2],4,uibutton(obj.app.grid(2),'Text',{'Experiment','Module'},'VerticalAlignment','bottom','FontSize',11,'Icon',iconPath3,'IconAlignment','top','Tooltip',{'Do experiment on multiple algorithms and problems.','You can observe the statistical results shown in a table and save it as an Excel or LaTeX table.'},'ButtonpushedFcn',{@obj.cb_module,3}));
+            obj.app.teamLogo  = platmetaxGUI.APP([1 2],[5 7],uiimage(obj.app.grid(2),'ImageSource',iconPath4,'VerticalAlignment','center','HorizontalAlignment','right','ScaleMethod','fit'));
+
             obj.app.tip       = platmetaxGUI.APP(2,8,uiimage(obj.app.grid(2),'ImageSource',obj.icon.tip2,'ImageClickedFcn',@obj.cb_fold,'UserData',true));
             tempLine          = platmetaxGUI.APP(3,[1 9],uipanel(obj.app.grid(2),'BackgroundColor',[.8 .8 .8]));
             
@@ -161,18 +170,41 @@ classdef platmetaxGUI < handle
             app.Layout.Column = column;
         end
         %% Generate state buttons of labels %Problem Dimension
+        function [stateButton,label] = GenerateLabelButtonTest(grid,values,cbFcn)
+            label(1) = platmetaxGUI.APP(2,[1 3],uilabel(grid,'Text','Number of objectives','VerticalAlignment','bottom','FontSize',12,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            stateButton(1)  = platmetaxGUI.APP(3,1,uibutton(grid,'state','Text','single','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(1),'Tooltip','The problem has a single objective','ValueChangedFcn',{cbFcn,1}));
+            stateButton(2)  = platmetaxGUI.APP(3,2,uibutton(grid,'state','Text','multi','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(2),'Tooltip','The problem has 2 or 3 objectives','ValueChangedFcn',{cbFcn,2}));
+            stateButton(3)  = platmetaxGUI.APP(3,3,uibutton(grid,'state','Text','many','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(3),'Tooltip','The problem has more than 3 objectives','ValueChangedFcn',{cbFcn,3}));
+            label(2) = platmetaxGUI.APP(4,[1 3],uilabel(grid,'Text','Encoding scheme','VerticalAlignment','bottom','FontSize',12,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            stateButton(4)  = platmetaxGUI.APP(5,1,uibutton(grid,'state','Text','real','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(4),'Tooltip','The decision variables are real numbers','ValueChangedFcn',{cbFcn,4}));
+            stateButton(5)  = platmetaxGUI.APP(5,2,uibutton(grid,'state','Text','integer','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(5),'Tooltip','The decision variables are integers','ValueChangedFcn',{cbFcn,5}));
+            stateButton(6)  = platmetaxGUI.APP(5,3,uibutton(grid,'state','Text','label','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(6),'Tooltip','The decision variables are labels','ValueChangedFcn',{cbFcn,6}));
+            stateButton(7)  = platmetaxGUI.APP(5,4,uibutton(grid,'state','Text','binary','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(7),'Tooltip','The decision variables are binary numbers','ValueChangedFcn',{cbFcn,7}));
+            stateButton(8)  = platmetaxGUI.APP(5,5,uibutton(grid,'state','Text','permutation','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(8),'Tooltip','The decision vector is a permutation','ValueChangedFcn',{cbFcn,8}));
+            label(3) = platmetaxGUI.APP(6,[1 3],uilabel(grid,'Text','Special difficulties','VerticalAlignment','bottom','FontSize',12,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            stateButton(9)  = platmetaxGUI.APP(7,1,uibutton(grid,'state','Text','large','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(9),'Tooltip','The problem has more than 100 decision variables','ValueChangedFcn',{cbFcn,9}));
+            stateButton(10) = platmetaxGUI.APP(7,2,uibutton(grid,'state','Text','constrained','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(10),'Tooltip','The problem has constraints','ValueChangedFcn',{cbFcn,10}));
+            stateButton(11) = platmetaxGUI.APP(7,3,uibutton(grid,'state','Text','expensive','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(11),'Tooltip','The objectives are computationally time-consuming','ValueChangedFcn',{cbFcn,11}));
+            stateButton(12) = platmetaxGUI.APP(7,4,uibutton(grid,'state','Text','multimodal','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(12),'Tooltip','The objectives are multimodal','ValueChangedFcn',{cbFcn,12}));
+            stateButton(13) = platmetaxGUI.APP(7,5,uibutton(grid,'state','Text','sparse','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(13),'Tooltip','Most decision variables of the optimal solutions are zero','ValueChangedFcn',{cbFcn,13}));
+            stateButton(14) = platmetaxGUI.APP(7,6,uibutton(grid,'state','Text','dynamic','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(14),'Tooltip','The objectives vary periodically','ValueChangedFcn',{cbFcn,14}));
+            stateButton(15) = platmetaxGUI.APP(7,7,uibutton(grid,'state','Text','multitask','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(15),'Tooltip','The problem has multiple tasks to be solved simultaneously','ValueChangedFcn',{cbFcn,15}));
+            stateButton(16) = platmetaxGUI.APP(7,8,uibutton(grid,'state','Text','robust','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(16),'Tooltip','The problem has two nested objectives','ValueChangedFcn',{cbFcn,16}));
+            stateButton(17) = platmetaxGUI.APP(7,9,uibutton(grid,'state','Text','learned','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(17),'Tooltip','The optimized algorithm is learned','ValueChangedFcn',{cbFcn,17}));
+        end
+        %% Generate state buttons of labels %Problem Dimension
         function [stateButton,label] = GenerateLabelButton(grid,values,cbFcn)
-            label(1) = platmetaxGUI.APP(1,[1 3],uilabel(grid,'Text','Number of objectives','VerticalAlignment','bottom','FontSize',12,'FontColor',[.15 .6 .2],'FontWeight','bold'));
+            label(1) = platmetaxGUI.APP(1,[1 3],uilabel(grid,'Text','Number of objectives','VerticalAlignment','bottom','FontSize',12,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             stateButton(1)  = platmetaxGUI.APP(2,1,uibutton(grid,'state','Text','single','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(1),'Tooltip','The problem has a single objective','ValueChangedFcn',{cbFcn,1}));
             stateButton(2)  = platmetaxGUI.APP(2,2,uibutton(grid,'state','Text','multi','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(2),'Tooltip','The problem has 2 or 3 objectives','ValueChangedFcn',{cbFcn,2}));
             stateButton(3)  = platmetaxGUI.APP(2,3,uibutton(grid,'state','Text','many','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(3),'Tooltip','The problem has more than 3 objectives','ValueChangedFcn',{cbFcn,3}));
-            label(2) = platmetaxGUI.APP(3,[1 3],uilabel(grid,'Text','Encoding scheme','VerticalAlignment','bottom','FontSize',12,'FontColor',[.15 .6 .2],'FontWeight','bold'));
+            label(2) = platmetaxGUI.APP(3,[1 3],uilabel(grid,'Text','Encoding scheme','VerticalAlignment','bottom','FontSize',12,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             stateButton(4)  = platmetaxGUI.APP(4,1,uibutton(grid,'state','Text','real','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(4),'Tooltip','The decision variables are real numbers','ValueChangedFcn',{cbFcn,4}));
             stateButton(5)  = platmetaxGUI.APP(4,2,uibutton(grid,'state','Text','integer','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(5),'Tooltip','The decision variables are integers','ValueChangedFcn',{cbFcn,5}));
             stateButton(6)  = platmetaxGUI.APP(4,3,uibutton(grid,'state','Text','label','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(6),'Tooltip','The decision variables are labels','ValueChangedFcn',{cbFcn,6}));
             stateButton(7)  = platmetaxGUI.APP(5,1,uibutton(grid,'state','Text','binary','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(7),'Tooltip','The decision variables are binary numbers','ValueChangedFcn',{cbFcn,7}));
             stateButton(8)  = platmetaxGUI.APP(5,2,uibutton(grid,'state','Text','permutation','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(8),'Tooltip','The decision vector is a permutation','ValueChangedFcn',{cbFcn,8}));
-            label(3) = platmetaxGUI.APP(6,[1 3],uilabel(grid,'Text','Special difficulties','VerticalAlignment','bottom','FontSize',12,'FontColor',[.15 .6 .2],'FontWeight','bold'));
+            label(3) = platmetaxGUI.APP(6,[1 3],uilabel(grid,'Text','Special difficulties','VerticalAlignment','bottom','FontSize',12,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             stateButton(9)  = platmetaxGUI.APP(7,1,uibutton(grid,'state','Text','large','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(9),'Tooltip','The problem has more than 100 decision variables','ValueChangedFcn',{cbFcn,9}));
             stateButton(10) = platmetaxGUI.APP(7,2,uibutton(grid,'state','Text','constrained','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(10),'Tooltip','The problem has constraints','ValueChangedFcn',{cbFcn,10}));
             stateButton(11) = platmetaxGUI.APP(7,3,uibutton(grid,'state','Text','expensive','FontSize',11,'FontColor',[.15 .6 .2],'BackgroundColor','w','Value',values(11),'Tooltip','The objectives are computationally time-consuming','ValueChangedFcn',{cbFcn,11}));

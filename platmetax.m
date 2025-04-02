@@ -9,7 +9,7 @@ function varargout = platmetax(varargin)
 % All the acceptable names and values are:
 %   'metabboComps'  <String>         common str of MetaBBO env, MO, BO
 %	'algorithm'     <function handle>	an algorithm
-%   'problem set'   <String>	        a problem set
+%   'problemSet'   <String>	        a problem set
 %	'problem'       <function handle>	a problem
 %   'N'             <positive integer>  population size
 %   'M'             <positive integer>  number of objectives
@@ -46,7 +46,7 @@ function varargout = platmetax(varargin)
 %   platmetax('task', @Train, 'metabboComps', 'MLP_Alg_Rec', 'problemSet','TSPs')
 %   platmetax('task', @Train, 'metabboComps', 'DQN_NSGAII_MSDTLZ', 'problemSet','DTLZ')
 %   platmetax('task', @Train, 'metabboComps', 'DDPG_NSGAII_Alpha', 'problemSet','MW')
-%   platmetax('task', @Train, 'metabboComps', 'LLM_DE_MS', 'problemSet','CEC2017LLM','N',50,'D',10 )
+%   platmetax('task', @Train, 'metabboComps', 'LLM_DE_MS', 'problemSet','CEC2010LLM','N',50,'D',10 )
 %%  Test meta-optimizer
 %   1.测试RL-based meta-optimizer：DDPG_DE_F（实现使用DDPG在线调整DE参数F）
 %   platmetax('task', @Test, 'metabboComps', 'DDPG_DE_F', 'problemSet','BBOB') 
@@ -84,7 +84,7 @@ function varargout = platmetax(varargin)
             else
                 taskName = varargin{index};
             end
-            if isequal(taskName, @TestTraditionalAlg)
+            if isequal(taskName, @TestTraditionalAlg) %for adaptting to PlatEMO
                 [PRO,input] = getSetting(varargin);
                 Problem     = PRO(input{:});
                 [ALG,input] = getSetting(varargin,Problem);
@@ -99,8 +99,8 @@ function varargout = platmetax(varargin)
                     varargout = {P.decs,P.objs,P.cons};
                 end
             else
-                [metaOptimizer, baseOptimizer,env, problemSet] = getConfig(varargin);
-                task = taskName(metaOptimizer, baseOptimizer, env, problemSet);
+                [moName, boName, envName, problemSet] = getConfig(varargin);
+                task = taskName(moName, boName, envName, problemSet);
                 result = task.run(); 
                 close all;
             end
@@ -115,9 +115,9 @@ function [mo, bo, env, problemSet] = getConfig(Setting)
         error('Fail to use platmetax since there is no correct metabbo!');
     else
         metabboComponents  = Setting{index};
-        env = str2func([metabboComponents '_Environment']);
-        mo = str2func([metabboComponents '_Metaoptimizer']);
-        bo = str2func([metabboComponents '_Baseoptimizer']);
+        env = [metabboComponents '_Environment'];
+        mo = [metabboComponents '_Metaoptimizer'];
+        bo = [metabboComponents '_Baseoptimizer'];
 %         Setting = [Setting,{'parameter'},{Setting{index}(2:end)}];
     end
     

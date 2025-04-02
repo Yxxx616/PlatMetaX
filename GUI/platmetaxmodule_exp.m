@@ -20,42 +20,13 @@ classdef platmetaxmodule_exp < handle
         function obj = platmetaxmodule_exp(platmetaxGUI)
             % The main grid
             obj.platmetaxGUI = platmetaxGUI;
-            obj.app.maingrid = platmetaxGUI.APP(3,1,uigridlayout(obj.platmetaxGUI.app.maingrid,'RowHeight',{20,'1x'},'ColumnWidth',{'1.2x',1,'1x',1,'4x'},'Padding',[0 5 0 5],'RowSpacing',5,'ColumnSpacing',0,'BackgroundColor','w'));
-            obj.app.label(1) = platmetaxGUI.APP(1,1,uilabel(obj.app.maingrid,'Text','Algorithm selection','HorizontalAlignment','center','FontSize',11,'FontColor',[.5 .5 .5]));
-            obj.app.label(2) = platmetaxGUI.APP(1,3,uilabel(obj.app.maingrid,'Text','Parameter setting','HorizontalAlignment','center','FontSize',11,'FontColor',[.5 .5 .5]));
-            obj.app.label(3) = platmetaxGUI.APP(1,5,uilabel(obj.app.maingrid,'Text','Result display','HorizontalAlignment','center','FontSize',11,'FontColor',[.5 .5 .5]));
-            platmetaxGUI.APP([1 2],2,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));
-            platmetaxGUI.APP([1 2],4,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));
+            obj.app.maingrid = platmetaxGUI.APP(3,1,uigridlayout(obj.platmetaxGUI.app.maingrid,'RowHeight',{'1x'},'ColumnWidth',{'4x','1.2x'},'Padding',[0 5 0 5],'RowSpacing',5,'ColumnSpacing',0,'BackgroundColor','w'));
+            
 
             % The first panel
-            obj.app.grid(1)    = platmetaxGUI.APP(2,1,uigridlayout(obj.app.maingrid,'RowHeight',{16,21,16,21,21,16,21,21,21,2,18,'1x',2,18,'1x',21,21,21},'ColumnWidth',{'1x','1.1x','1x'},'Padding',[8 5 8 0],'RowSpacing',3,'ColumnSpacing',5,'BackgroundColor','w'));
-            [obj.app.stateA,obj.app.labelA] = platmetaxGUI.GenerateLabelButton(obj.app.grid(1),[0 1 0 1,zeros(1,13)],@obj.cb_filter);
-            obj.app.labelA(4)  = platmetaxGUI.APP(11,[1 2],uilabel(obj.app.grid(1),'Text','BaseOptimizers','FontSize',13,'FontColor',[.2 .4 .7],'FontWeight','bold'));
-            obj.app.labelA(5)  = platmetaxGUI.APP(11,3,uilabel(obj.app.grid(1),'HorizontalAlignment','right','FontSize',10,'FontColor',[.2 .4 .7]));
-            obj.app.listA(1)   = platmetaxGUI.APP(12,[1 3],uilistbox(obj.app.grid(1),'FontColor',[.2 .4 .7]));
-            obj.app.labelA(6)  = platmetaxGUI.APP(14,[1 2],uilabel(obj.app.grid(1),'Text','Problems','FontSize',13,'FontColor',[.9 .5 .2],'FontWeight','bold'));
-            obj.app.labelA(7)  = platmetaxGUI.APP(14,3,uilabel(obj.app.grid(1),'HorizontalAlignment','right','FontSize',10,'FontColor',[.9 .5 .2]));
-            obj.app.listA(2)   = platmetaxGUI.APP(15,[1 3],uilistbox(obj.app.grid(1),'FontColor',[.9 .5 .2]));
-            obj.app.dropA(1)   = platmetaxGUI.APP(11,2,uidropdown(obj.app.grid(1),'BackgroundColor','w','FontColor',[.2 .4 .7],'Items',{'All year'},'ValueChangedFcn',@(h,~)platmetaxGUI.UpdateAlgProListYear(obj.app.listA(1),h,obj.app.labelA(5),obj.platmetaxGUI.algList)));
-            obj.app.dropA(2)   = platmetaxGUI.APP(14,2,uidropdown(obj.app.grid(1),'BackgroundColor','w','FontColor',[.9 .5 .2],'Items',{'All year'},'ValueChangedFcn',@(h,~)platmetaxGUI.UpdateAlgProListYear(obj.app.listA(2),h,obj.app.labelA(7),obj.platmetaxGUI.proList)));
-            obj.app.labelA(8)  = platmetaxGUI.APP(16,[1 2],uilabel(obj.app.grid(1),'Text','Number of runs','FontColor',[.15 .6 .2],'FontWeight','bold','Tooltip','Number of runs for each algorithm on each problem'));
-            obj.app.editA(1)   = platmetaxGUI.APP(16,3,uieditfield(obj.app.grid(1),'numeric','Value',31,'limits',[1 inf],'RoundFractionalValues','on','Tooltip','Number of runs for each algorithm on each problem'));
-            obj.app.labelA(9)  = platmetaxGUI.APP(17,[1 2],uilabel(obj.app.grid(1),'Text','Number of results','FontColor',[.15 .6 .2],'FontWeight','bold','Tooltip','Number of populations saved in each run'));
-            obj.app.editA(2)   = platmetaxGUI.APP(17,3,uieditfield(obj.app.grid(1),'numeric','Value',10,'limits',[1 inf],'RoundFractionalValues','on','Tooltip','Number of populations saved in each run'));
-            tempGrid           = platmetaxGUI.APP(18,[1 3],uigridlayout(obj.app.grid(1),'RowHeight',{'1x'},'ColumnWidth',{'0.5x',20,'1x'},'Padding',[0 0 0 0],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.labelA(10) = platmetaxGUI.APP(1,1,uilabel(tempGrid,'Text','File path','FontColor',[.15 .6 .2],'FontWeight','bold','Tooltip','File path for saving experimental settings'));
-            obj.app.buttonA    = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','...','BackgroundColor','w','ButtonpushedFcn',@obj.cb_filepath,'Tooltip','File path for saving experimental settings'));
-            obj.app.editA(3)   = platmetaxGUI.APP(1,3,uieditfield(tempGrid,'Value',fullfile(cd,'Data','Setting.mat'),'HorizontalAlignment','right','Tooltip','File path for saving experimental settings'));
-            
-            % The second panel
-            obj.app.listB   = uilist(obj.app.maingrid,obj.platmetaxGUI.app.figure,obj.platmetaxGUI.icon);
-            obj.app.grid(2) = platmetaxGUI.APP(2,3,obj.app.listB.grid);
-            obj.app.listA(1).ValueChangedFcn = @(~,~)platmetaxGUI.UpdateAlgProPara(obj.platmetaxGUI.app.figure,obj.app.listA(1),obj.app.listB,'BASEOPTIMIZER',2);
-            obj.app.listA(2).ValueChangedFcn = @(~,~)platmetaxGUI.UpdateAlgProPara(obj.platmetaxGUI.app.figure,obj.app.listA(2),obj.app.listB,'PROBLEM',-2);
-
-            % The third panel
-            obj.app.grid(3)    = platmetaxGUI.APP(2,5,uigridlayout(obj.app.maingrid,'RowHeight',{30,'1x',30},'ColumnWidth',{230,'1x','1x',230},'Padding',[20 10 20 0],'ColumnSpacing',20,'BackgroundColor','w'));
-            tempGrid           = platmetaxGUI.APP(1,[1 4],uigridlayout(obj.app.grid(3),'RowHeight',{1,'1x',1},'ColumnWidth',{18,24,24,24,24,24,'1x','1x','1x','1.2x'},'Padding',[5 5 5 5],'RowSpacing',0,'ColumnSpacing',8,'BackgroundColor',[.95 .95 1]));
+            obj.app.grid(3)    = platmetaxGUI.APP(1,[1 4],uigridlayout(obj.app.maingrid,'RowHeight',{20,30,'1x',30},'ColumnWidth',{230,'1x','1x',230},'Padding',[20 10 20 0],'ColumnSpacing',20,'BackgroundColor','w'));
+            obj.app.label(3) = platmetaxGUI.APP(1,[2 3],uilabel(obj.app.grid(3),'Text','Result display','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            tempGrid           = platmetaxGUI.APP(2,[1 4],uigridlayout(obj.app.grid(3),'RowHeight',{1,'1x',1},'ColumnWidth',{18,24,24,24,24,24,'1x','1x','1x','1.2x'},'Padding',[5 5 5 5],'RowSpacing',0,'ColumnSpacing',8,'BackgroundColor',[.95 .95 1]));
             tempPanel          = platmetaxGUI.APP(2,1,uipanel(tempGrid,'BorderType','none','BackgroundColor',[.95 .95 1]));
             obj.app.toolC(1)   = uibutton(tempPanel,'Position',[-2.5 -2.5 24 24],'Text','','Icon',obj.platmetaxGUI.icon.savetable,'BackgroundColor',[.95 .95 1],'Tooltip','Save the table','ButtonpushedFcn',@obj.cb_save);
             tempPanel          = platmetaxGUI.APP(2,2,uipanel(tempGrid,'BorderType','none','BackgroundColor',[.95 .95 1]));
@@ -68,17 +39,49 @@ classdef platmetaxmodule_exp < handle
             obj.app.dropC(2)   = platmetaxGUI.APP([1 3],8,uidropdown(tempGrid,'BackgroundColor',[.95 .95 1],'Tooltip','Show the mean value and standard deviation','Items',{'Mean','Mean (STD)','Median','Median (IQR)'},'ItemsData',1:4,'Value',2,'Interruptible','off','BusyAction','cancel','ValueChangedFcn',@obj.TableUpdate));
             obj.app.dropC(3)   = platmetaxGUI.APP([1 3],9,uidropdown(tempGrid,'BackgroundColor',[.95 .95 1],'Tooltip','Perform the Wilcoxon rank sum test','Items',{'none','Signed rank test','Rank sum test','Friedman test'},'ItemsData',1:4,'Value',3,'Interruptible','off','BusyAction','cancel','ValueChangedFcn',@obj.TableUpdate));
             obj.app.dropC(4)   = platmetaxGUI.APP([1 3],10,uidropdown(tempGrid,'BackgroundColor',[.95 .95 1],'Tooltip','Highlight the best result','Items',{'none','Highlight the best','Highlight all the bests'},'ItemsData',1:3,'Value',2,'Interruptible','off','BusyAction','cancel','ValueChangedFcn',@obj.TableUpdate));
-            obj.app.table      = platmetaxGUI.APP(2,[1 4],uitable(obj.app.grid(3),'CellSelectionCallback',@obj.cb_tableSelect));
-            obj.app.checkC     = platmetaxGUI.APP(3,1,uicheckbox(obj.app.grid(3),'Text','Parallel execution','Tooltip','Perform the experiment with multiple CPUs','Enable',~isempty(ver('parallel'))));
-            obj.app.buttonC(1) = platmetaxGUI.APP(3,2,uibutton(obj.app.grid(3),'push','Text','Start','FontSize',16,'ButtonpushedFcn',@obj.cb_start));
-            obj.app.buttonC(2) = platmetaxGUI.APP(3,3,uibutton(obj.app.grid(3),'push','Text','Stop','FontSize',16,'Enable','off','ButtonpushedFcn',@obj.cb_stop));
-            obj.app.labelC     = platmetaxGUI.APP(3,4,uilabel(obj.app.grid(3),'Text','','HorizontalAlignment','right','VerticalAlignment','center'));
+            obj.app.table      = platmetaxGUI.APP(3,[1 4],uitable(obj.app.grid(3),'CellSelectionCallback',@obj.cb_tableSelect));
+            
             obj.app.tablemenu  = uicontext(obj.platmetaxGUI.app.figure,110);
             obj.app.tablemenu.add('  Populations (obj.)','',{@obj.cb_tableShow,1});
             obj.app.tablemenu.add('  Populations (dec.)','',{@obj.cb_tableShow,2});
             obj.app.tablemenu.add('  Metric values','',{@obj.cb_tableShow,3});
             obj.app.tablemenu.flush();
+
+            % The second panel
+            obj.app.grid(1)    = platmetaxGUI.APP(1,[5 10],uigridlayout(obj.app.maingrid,'RowHeight',{20,16,21,16,21,16,21,20,'1x',20,'1x',21,30},'ColumnWidth',{'1x','1x'},'Padding',[8 5 8 0],'RowSpacing',3,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.label(1) = platmetaxGUI.APP(1,[1 9],uilabel(obj.app.grid(1),'Text','Algorithm selection','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            [obj.app.stateA,obj.app.labelA] = platmetaxGUI.GenerateLabelButtonTest(obj.app.grid(1),[0 1 0 1,zeros(1,13)],@obj.cb_filter);
+            obj.app.labelA(4)  = platmetaxGUI.APP(8,[1 2],uilabel(obj.app.grid(1),'Text','BaseOptimizers','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            obj.app.labelA(5)  = platmetaxGUI.APP(8,5,uilabel(obj.app.grid(1),'HorizontalAlignment','right','FontSize',10,'FontColor',[0.93,0.69,0.13]));
+            obj.app.listA(1)   = platmetaxGUI.APP(9,[1 5],uilistbox(obj.app.grid(1),'FontColor',[0.93,0.69,0.13]));
+            obj.app.labelA(6)  = platmetaxGUI.APP(8,[6 7],uilabel(obj.app.grid(1),'Text','Problems','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            obj.app.labelA(7)  = platmetaxGUI.APP(8,10,uilabel(obj.app.grid(1),'HorizontalAlignment','right','FontSize',10,'FontColor',[0.30,0.75,0.93]));
+            obj.app.listA(2)   = platmetaxGUI.APP(9,[6 10],uilistbox(obj.app.grid(1),'FontColor',[0.30,0.75,0.93]));
+            obj.app.dropA(1)   = platmetaxGUI.APP(8,[3 4],uidropdown(obj.app.grid(1),'BackgroundColor','w','FontColor',[0.93,0.69,0.13],'Items',{'All year'},'ValueChangedFcn',@(h,~)platmetaxGUI.UpdateAlgProListYear(obj.app.listA(1),h,obj.app.labelA(5),obj.platmetaxGUI.algList)));
+            obj.app.dropA(2)   = platmetaxGUI.APP(8,[7 8],uidropdown(obj.app.grid(1),'BackgroundColor','w','FontColor',[0.30,0.75,0.93],'Items',{'All year'},'ValueChangedFcn',@(h,~)platmetaxGUI.UpdateAlgProListYear(obj.app.listA(2),h,obj.app.labelA(7),obj.platmetaxGUI.proList)));
             
+            
+            % The third panel
+            obj.app.label(2) = platmetaxGUI.APP(10,[1 9],uilabel(obj.app.grid(1),'Text','Parameter setting','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            obj.app.listB   = uilist(obj.app.grid(1),obj.platmetaxGUI.app.figure,obj.platmetaxGUI.icon);
+            obj.app.grid(2) = platmetaxGUI.APP(11,[1 10],obj.app.listB.grid);
+            obj.app.listA(1).ValueChangedFcn = @(~,~)platmetaxGUI.UpdateAlgProPara(obj.platmetaxGUI.app.figure,obj.app.listA(1),obj.app.listB,'BASEOPTIMIZER',2);
+            obj.app.listA(2).ValueChangedFcn = @(~,~)platmetaxGUI.UpdateAlgProPara(obj.platmetaxGUI.app.figure,obj.app.listA(2),obj.app.listB,'PROBLEM',-2);
+
+            tempGridNew1       = platmetaxGUI.APP(12,[1 10],uigridlayout(obj.app.grid(1),'RowHeight',{'1x'},'ColumnWidth',{'0.9x','0.4x','1x','0.4x','0.4x','0.2x','0.8x'},'Padding',[0 0 0 0],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.labelA(8)  = platmetaxGUI.APP(1,1,uilabel(tempGridNew1,'Text','Number of runs','FontColor',[0.00,0.00,0.00],'FontWeight','bold','Tooltip','Number of runs for each algorithm on each problem'));
+            obj.app.editA(1)   = platmetaxGUI.APP(1,2,uieditfield(tempGridNew1,'numeric','Value',31,'limits',[1 inf],'RoundFractionalValues','on','Tooltip','Number of runs for each algorithm on each problem'));
+            obj.app.labelA(9)  = platmetaxGUI.APP(1,3,uilabel(tempGridNew1,'Text','Number of results','FontColor',[0.00,0.00,0.00],'FontWeight','bold','Tooltip','Number of populations saved in each run'));
+            obj.app.editA(2)   = platmetaxGUI.APP(1,4,uieditfield(tempGridNew1,'numeric','Value',10,'limits',[1 inf],'RoundFractionalValues','on','Tooltip','Number of populations saved in each run'));
+            tempGrid           = platmetaxGUI.APP(1,[5 8],uigridlayout(tempGridNew1,'RowHeight',{'1x'},'ColumnWidth',{'0.5x',20,'1x'},'Padding',[0 0 0 0],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
+            obj.app.labelA(10) = platmetaxGUI.APP(1,1,uilabel(tempGrid,'Text','File path','FontColor',[0.00,0.00,0.00],'FontWeight','bold','Tooltip','File path for saving experimental settings'));
+            obj.app.buttonA    = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','...','BackgroundColor','w','ButtonpushedFcn',@obj.cb_filepath,'Tooltip','File path for saving experimental settings'));
+            obj.app.editA(3)   = platmetaxGUI.APP(1,[3 4],uieditfield(tempGrid,'Value',fullfile(cd,'Data','Setting.mat'),'HorizontalAlignment','right','Tooltip','File path for saving experimental settings'));
+            
+%             obj.app.checkC     = platmetaxGUI.APP(13,[1 2],uicheckbox(obj.app.grid(1),'Text','Parallel execution','Tooltip','Perform the experiment with multiple CPUs','Enable',~isempty(ver('parallel'))));
+            obj.app.buttonC(1) = platmetaxGUI.APP(13,[4 5],uibutton(obj.app.grid(1),'push','Text','Start','FontSize',16,'FontColor',[1 1 1],"BackgroundColor",[0.07,0.62,1.00],'ButtonpushedFcn',@obj.cb_start));
+            obj.app.buttonC(2) = platmetaxGUI.APP(13,[6 7],uibutton(obj.app.grid(1),'push','Text','Stop','FontSize',16,'FontColor',[1 1 1],"BackgroundColor",[0.07,0.62,1.00],'Enable','off','ButtonpushedFcn',@obj.cb_stop));
+            obj.app.labelC     = platmetaxGUI.APP(13,8,uilabel(obj.app.grid(1),'Text','','HorizontalAlignment','right','VerticalAlignment','center'));
             % Initialization
             obj.cb_filter([],[],2);
         end
@@ -146,7 +149,8 @@ classdef platmetaxmodule_exp < handle
             else
                 try
                     % Check the validity of settings
-                    isParallel = obj.app.checkC.Value;
+%                     20250331修改，去掉勾选Parallel execution的逻辑，防止用户勾选Parallel execution运行报错
+%                     isParallel = obj.app.checkC.Value;
                     PRO = [];
                     assert(~isempty(obj.app.listB.items),'No algorithm is selected.');
                     type = [obj.app.listB.items.type];
@@ -160,11 +164,12 @@ classdef platmetaxmodule_exp < handle
                     for i = 1 : length(type)
                         [name,para] = platmetaxGUI.GetParameterSetting(obj.app.listB.items(i));
                         if type(i) > 0
-                            if ~isParallel
+                            %                     20250331修改，去掉勾选Parallel execution的逻辑，防止用户勾选Parallel execution运行报错
+%                             if ~isParallel
                                 ALG(i).alg = feval(name,'parameter',para,'save',obj.app.editA(2).Value,'outputFcn',@obj.outputFcn);
-                            else
-                                ALG(i).alg = feval(name,'parameter',para,'save',obj.app.editA(2).Value,'outputFcn',@(~,~)[]);
-                            end
+%                             else
+%                                 ALG(i).alg = feval(name,'parameter',para,'save',obj.app.editA(2).Value,'outputFcn',@(~,~)[]);
+%                             end
                         else
                             len = cellfun(@length,para(1:4));
                             for j = 1 : max(1,max(len))
@@ -206,7 +211,9 @@ classdef platmetaxmodule_exp < handle
                         arrayfun(@(r)obj.ResultLoad(p,a,r),1:size(obj.data.result,3));
                         obj.TableUpdate([],[],p);
                         runIndex = find(reshape(cellfun(@isempty,obj.data.result(p,a,:)),1,[]));
-                        if ~isempty(runIndex) && ~isParallel    % Run algorithms in sequence
+                        %                     20250331修改，去掉勾选Parallel execution的逻辑，防止用户勾选Parallel execution运行报错
+%                         if ~isempty(runIndex) && ~isParallel    % Run algorithms in sequence
+                        if ~isempty(runIndex)
                             try
                                 for r = runIndex
                                     if contains(class(ALG(a).alg), 'Baseoptimizer')
@@ -215,9 +222,12 @@ classdef platmetaxmodule_exp < handle
                                         for i = 2:length(parts)-1
                                             comp = strcat(comp, '_', parts{i}); % 重新拼接前两部分
                                         end
-                                        env = str2func([comp '_Environment']);
-                                        mo = str2func([comp '_Metaoptimizer']);
+                                        env = [comp '_Environment'];
+                                        mo = [comp '_Metaoptimizer'];
                                         task = Test(mo, ALG(a).alg, env, PRO(p));
+                                        task.run();
+                                    elseif contains(class(ALG(a).alg), 'ddpg')
+                                        task = Test(@DDPGCMO, ALG(a).alg, @EPSILONCMOAADEnvironment, PRO(p));
                                         task.run();
                                     else
                                         ALG(a).alg.Solve(PRO(p));
@@ -234,38 +244,38 @@ classdef platmetaxmodule_exp < handle
                                 obj.cb_stop();
                                 rethrow(err);
                             end
-                        elseif ~isempty(runIndex)               % Run algorithms in parallel
-                            try
-                                Future = arrayfun(@(s)parfeval(@parallelFcn,2,ALG(a).alg,PRO(p)),runIndex);
-                                while ~all([Future.Read])
-                                    drawnow('limitrate');
-                                    if strcmp(obj.app.buttonC(2).Enable,'off')
-                                        cancel(Future);
-                                        return;
-                                    end
-                                    if strcmp(obj.app.buttonC(1).Text,'Continue')
-                                        waitfor(obj.app.buttonC(1),'Text');
-                                    end
-                                    if strcmp(obj.app.buttonC(2).Enable,'off')
-                                        cancel(Future);
-                                        return;
-                                    end
-                                    [r,result,metric] = fetchNext(Future,0.01);
-                                    if ~isempty(r)
-                                        obj.ResultSave(p,a,runIndex(r),result,metric);
-                                        obj.ResultLoad(p,a,runIndex(r));
-                                        obj.TableUpdate([],[],p);
-                                    end
-                                end
-                            catch err
-                                try
-                                    cancel(Future);
-                                catch
-                                end
-                                uialert(obj.platmetaxGUI.app.figure,'The algorithm terminates unexpectedly, please refer to the command window for details.','Error');
-                                obj.cb_stop();
-                                rethrow(err);
-                            end
+%                         elseif ~isempty(runIndex)               % Run algorithms in parallel
+%                             try
+%                                 Future = arrayfun(@(s)parfeval(@parallelFcn,2,ALG(a).alg,PRO(p)),runIndex);
+%                                 while ~all([Future.Read])
+%                                     drawnow('limitrate');
+%                                     if strcmp(obj.app.buttonC(2).Enable,'off')
+%                                         cancel(Future);
+%                                         return;
+%                                     end
+%                                     if strcmp(obj.app.buttonC(1).Text,'Continue')
+%                                         waitfor(obj.app.buttonC(1),'Text');
+%                                     end
+%                                     if strcmp(obj.app.buttonC(2).Enable,'off')
+%                                         cancel(Future);
+%                                         return;
+%                                     end
+%                                     [r,result,metric] = fetchNext(Future,0.01);
+%                                     if ~isempty(r)
+%                                         obj.ResultSave(p,a,runIndex(r),result,metric);
+%                                         obj.ResultLoad(p,a,runIndex(r));
+%                                         obj.TableUpdate([],[],p);
+%                                     end
+%                                 end
+%                             catch err
+%                                 try
+%                                     cancel(Future);
+%                                 catch
+%                                 end
+%                                 uialert(obj.platmetaxGUI.app.figure,'The algorithm terminates unexpectedly, please refer to the command window for details.','Error');
+%                                 obj.cb_stop();
+%                                 rethrow(err);
+%                             end
                         end
                     end
                 end
@@ -308,7 +318,7 @@ classdef platmetaxmodule_exp < handle
                         end
                         legends{end+1} = legendLabel;
                     end
-                    legend(legends, 'Location', 'best');
+                    legend(legends, 'Location', 'best','Interpreter', 'none');
                     problemClass = class(pros(p));
                     if isempty(problemClass)
                         problemClass = 'Unknown Problem';

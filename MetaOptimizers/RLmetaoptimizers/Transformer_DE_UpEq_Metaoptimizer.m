@@ -3,8 +3,17 @@ classdef Transformer_DE_UpEq_Metaoptimizer < rl.agent.CustomAgent
         % 核心组件
         ActorNetwork
         TargetNetwork
-        Optimizer
-        ExperienceBuffer
+        xExperienceBuffer = struct(...
+            'Observations', {}, ...
+            'Actions', {}, ...
+            'Rewards', {}, ...
+            'NextObservations', {}, ...
+            'IsDone', {})
+        BufferMaxSize = 2000;
+        
+        % 优化器状态
+        Velocity
+        SquaredGradient
         
         % 超参数
         Gamma = 0.95                  % 折扣因子
@@ -12,6 +21,8 @@ classdef Transformer_DE_UpEq_Metaoptimizer < rl.agent.CustomAgent
         TargetUpdateFrequency = 100   % 目标网络更新频率
         MiniBatchSize = 32            % 训练批大小
         ExplorationEpsilon = 0.1      % 探索率
+        GradientDecayFactor = 0.9     % 梯度衰减因子
+        SquaredGradientDecayFactor = 0.999 % 平方梯度衰减因子
         
         % 状态跟踪
         TrainingStep = 0
@@ -25,20 +36,12 @@ classdef Transformer_DE_UpEq_Metaoptimizer < rl.agent.CustomAgent
             obj.ObservationInfo = obsInfo;
             obj.ActionInfo = actInfo;  
             % 初始化网络架构
-            obj.ActorNetwork = obj.createTransformerNetwork(obsInfo, obj.MaxTreeDepth);
-            obj.TargetNetwork = copy(obj.ActorNetwork);
+            obj.ActorNetwork = obj.createTransformerNetwork(obsInfo, actInfo);
+            obj.TargetNetwork = obj.ActorNetwork;
             
-            % 配置优化器
-            obj.Optimizer = adamOptimizer(...
-                'LearnRateSchedule', 'piecewise',...
-                'LearnRate', obj.LearnRate,...
-                'GradientDecayFactor', 0.9,...
-                'SquaredGradientDecayFactor', 0.999);
-            
-            % 初始化经验池
-            obj.ExperienceBuffer = rl.replay.Buffer(...
-                obsInfo, actInfo, 1e5,...
-                'SampleTransitionsFunction', @this.sampleTransitions);
+            % 初始化优化器状态
+            obj.Velocity = [];
+            obj.SquaredGradient = [];
         end
     end
     methods (Access = protected)
@@ -58,11 +61,15 @@ classdef Transformer_DE_UpEq_Metaoptimizer < rl.agent.CustomAgent
         
         function learnImpl(obj, experience)
             % 存储经验并执行训练
-            append(obj.ExperienceBuffer, experience);
+            if numel(obj.xExperienceBuffer) > obj.BufferMaxSize
+                obj.xExperienceBuffer(randi(obj.BufferMaxSize)) = experience;
+            else
+                obj.xExperienceBuffer(end+1) = experience;
+            end
             
-            if length(obj.ExperienceBuffer) >= obj.MiniBatchSize
+            if numel(obj.xExperienceBuffer) >= obj.MiniBatchSize
                 % 从经验池采样
-                miniBatch = sample(obj.ExperienceBuffer, obj.MiniBatchSize);
+                miniBatch = randperm(numel(obj.xExperienceBuffer), obj.MiniBatchSize);
                 
                 % 转换数据格式
                 [states, actions, rewards, nextStates, dones] = ...
@@ -75,8 +82,14 @@ classdef Transformer_DE_UpEq_Metaoptimizer < rl.agent.CustomAgent
                 [gradients, loss] = dlfeval(...
                     @obj.computeGradients, states, actions, targetQ);
                 
-                obj.ActorNetwork = adamupdate(...
-                    obj.ActorNetwork, gradients, obj.Optimizer);
+                % 使用Adam更新参数
+                [obj.ActorNetwork, obj.Velocity, obj.SquaredGradient] = adamupdate(...
+                    obj.ActorNetwork, gradients, ...
+                    obj.Velocity, obj.SquaredGradient, ...
+                    obj.TrainingStep, ...
+                    obj.LearnRate, ...
+                    obj.GradientDecayFactor, ...
+                    obj.SquaredGradientDecayFactor);
                 
                 % 定期更新目标网络
                 if mod(obj.TrainingStep, obj.TargetUpdateFrequency) == 0
@@ -94,45 +107,88 @@ classdef Transformer_DE_UpEq_Metaoptimizer < rl.agent.CustomAgent
     end
     
     methods (Access = private)
-        function net = createTransformerNetwork(obj, obsInfo, maxTreeDepth)
+        function net = createTransformerNetwork(obj, obsInfo,actInfo)
             % 构建Transformer网络架构
-            inputDim = obsInfo.Dimension(2);  % (D + M + 1)
-            outputDim = maxTreeDepth * 2;
-            
+            inputDim = obsInfo.Dimension(2);  
+            outputDim = actInfo.Dimension(1);
+                        
             layers = [
-                sequenceInputLayer(inputDim, 'Name', 'input')
+                sequenceInputLayer(inputDim, 'Name', 'input')  % 输入层
                 
-                % 位置嵌入层
-                positionEmbeddingLayer(64, 128, 'Name', 'pos_embed')
+                % 编码器部分 (重复两次)
+                % 编码器块1
+                selfAttentionLayer(8, 256, 'Name', 'enc_self_attn1')  % 维度保持256
+                additionLayer(2, 'Name', 'enc_add1')                  
+                layerNormalizationLayer('Name', 'enc_ln1')            
+                fullyConnectedLayer(256*2, 'Name', 'enc_fc1')         % 扩展维度到512
+                reluLayer('Name', 'enc_relu1')                        
+                fullyConnectedLayer(inputDim, 'Name', 'enc_fc2')           % 恢复维度到inputDim
+                additionLayer(2, 'Name', 'enc_add2')                  
+                layerNormalizationLayer('Name', 'enc_ln2')            
                 
-                % 编码器模块
-                additionLayer(2, 'Name', 'add1')
-                selfAttentionLayer(8,256)
-                selfAttentionLayer(8,256)
-                layerNormalizationLayer('Name', 'ln_embed')
-                fullyConnectedLayer(256, 'Name', 'fc1')
-                layerNormalizationLayer('Name', 'ln2')
+                % 编码器块2 (重复结构)
+                selfAttentionLayer(8, 256, 'Name', 'enc_self_attn2')  % 维度保持256
+                additionLayer(2, 'Name', 'enc_add3')
+                layerNormalizationLayer('Name', 'enc_ln3')
+                fullyConnectedLayer(256*2, 'Name', 'enc_fc3')
+                reluLayer('Name', 'enc_relu2')
+                fullyConnectedLayer(inputDim, 'Name', 'enc_fc4')          % 恢复维度到256
+                additionLayer(2, 'Name', 'enc_add4')
+                layerNormalizationLayer('Name', 'enc_ln4')
                 
-                % 解码器模块
-                selfAttentionLayer(8,256,'AttentionMask','causal')
-                additionLayer(2, 'Name', 'add2')
-                layerNormalizationLayer('Name', 'ln_embed')
-                selfAttentionLayer(8,256)
-                additionLayer(2, 'Name', 'add3')
-                layerNormalizationLayer('Name', 'ln_embed')
-                fullyConnectedLayer(256, 'Name', 'fc1')
-                reluLayer('Name', 'relu1')
-                layerNormalizationLayer('Name', 'ln1')
+                % 解码器部分
+                % 解码器自注意力
+                selfAttentionLayer(8, 256, 'AttentionMask', 'causal', 'Name', 'dec_self_attn')
+                additionLayer(2, 'Name', 'dec_add1')
+                layerNormalizationLayer('Name', 'dec_ln1')
                 
-                fullyConnectedLayer(128, 'Name', 'fc2')
-                reluLayer('Name', 'relu2')
-                layerNormalizationLayer('Name', 'ln2')
+                % 交叉注意力（编码器->解码器）
+                attentionLayer(4, 'Name', 'dec_cross_attn')  
+                layerNormalizationLayer('Name', 'dec_ln2')
                 
-                fullyConnectedLayer(outputDim, 'Name', 'output')
-                sigmoidLayer('Name', 'prob_output')
+                % 前馈网络（带维度匹配）
+                fullyConnectedLayer(256*2, 'Name', 'dec_fc1')
+                reluLayer('Name', 'dec_relu1')
+                fullyConnectedLayer(inputDim, 'Name', 'dec_fc2')          % 恢复维度到256
+                additionLayer(2, 'Name', 'dec_add3')
+                layerNormalizationLayer('Name', 'dec_ln3')
+                
+                % 输出部分（新增完整输出结构）
+                fullyConnectedLayer(256, 'Name', 'output_fc1')        % 过渡层
+                reluLayer('Name', 'output_relu')
+                fullyConnectedLayer(outputDim, 'Name', 'final_fc')
+                softmaxLayer('Name', 'prob_output')                   % 输出层
             ];
             
-            net = dlnetwork(layers);
+            % 创建 layerGraph 并连接
+            lgraph = layerGraph(layers);
+            
+            %% 编码器
+            lgraph = connectLayers(lgraph, 'input', 'enc_add1/in2');   % 跳跃连接输入
+            
+            % 第一层前馈残差（确保维度匹配）
+            lgraph = connectLayers(lgraph, 'enc_ln1', 'enc_add2/in2');
+            
+            % 第二层自注意力残差
+            lgraph = connectLayers(lgraph, 'enc_ln2', 'enc_add3/in2');
+            
+            % 第二层前馈残差
+            lgraph = connectLayers(lgraph, 'enc_ln3', 'enc_add4/in2');
+            
+            %% 解码器连接修正
+            % 自注意力残差
+            lgraph = connectLayers(lgraph, 'input', 'dec_add1/in2');  % 假设共享输入维度
+            
+            % 交叉注意力连接
+            lgraph = connectLayers(lgraph, 'enc_ln4', 'dec_cross_attn/key');
+            lgraph = connectLayers(lgraph, 'enc_ln4', 'dec_cross_attn/value');
+            
+            % 前馈残差连接
+            lgraph = connectLayers(lgraph, 'dec_ln2', 'dec_add3/in2');
+            
+            % analyzeNetwork(lgraph)
+            % 创建可训练网络
+            net = dlnetwork(lgraph);
         end
         
         function action = sampleAction(obj, actionProbs, epsilon)
@@ -171,7 +227,7 @@ classdef Transformer_DE_UpEq_Metaoptimizer < rl.agent.CustomAgent
         
         function processedObs = preprocessObservation(obj, observation)
             % 观测数据预处理
-            processedObs = dlarray(observation, 'CTB');  % Channel x Time x Batch
+            processedObs = dlarray(observation{1}, 'TC');  % Time x Channels
         end
         
         function [states, actions, rewards, nextStates, dones] = unpackExperience(~, batch)

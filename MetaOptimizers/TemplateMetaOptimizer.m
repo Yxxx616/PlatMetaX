@@ -1,4 +1,4 @@
-classdef TemplateRLMetaOptimizer < rl.agent.CustomAgent
+classdef TemplateMetaOptimizer < rl.agent.CustomAgent
     % MetaOptimizerRL 基于强化学习的元优化器模板类
     % 继承自rl.agent.CustomAgent，实现必要接口
     
@@ -19,7 +19,7 @@ classdef TemplateRLMetaOptimizer < rl.agent.CustomAgent
     end
     
     methods
-        function obj = TemplateRLMetaOptimizer(observationInfo, actionInfo)
+        function obj = TemplateMetaOptimizer(observationInfo, actionInfo)
             % 构造函数
             % 调用父类构造函数
             obj = obj@rl.agent.CustomAgent(observationInfo, actionInfo);

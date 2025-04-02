@@ -22,15 +22,28 @@ classdef platmetaxmodule_app < handle
         function obj = platmetaxmodule_app(platmetaxGUI)
             % The main grid
             obj.platmetaxGUI = platmetaxGUI;
-            obj.app.maingrid = platmetaxGUI.APP(3,1,uigridlayout(obj.platmetaxGUI.app.maingrid,'RowHeight',{20,30,'1x'},'ColumnWidth',{'2x',5,1,'1.2x',1,'2x','0.8x','0.2x'},'Padding',[5 5 5 5],'RowSpacing',5,'ColumnSpacing',0,'BackgroundColor','w'));
-            obj.app.label(1) = platmetaxGUI.APP(1,1,uilabel(obj.app.maingrid,'Text','Problem definition','HorizontalAlignment','center','FontSize',11,'FontColor',[.5 .5 .5]));
-            obj.app.label(2) = platmetaxGUI.APP(1,4,uilabel(obj.app.maingrid,'Text','Algorithm selection','HorizontalAlignment','center','FontSize',11,'FontColor',[.5 .5 .5]));
-            obj.app.label(3) = platmetaxGUI.APP(1,[6 8],uilabel(obj.app.maingrid,'Text','Result display','HorizontalAlignment','center','FontSize',11,'FontColor',[.5 .5 .5]));
-            platmetaxGUI.APP([1 3],3,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));
+            obj.app.maingrid = platmetaxGUI.APP(3,1,uigridlayout(obj.platmetaxGUI.app.maingrid,'RowHeight',{20,30,'1x'},'ColumnWidth',{'2x','0.8x','0.2x','0.1x',1,'1.4x',1,1,'1.2x'},'Padding',[5 5 5 5],'RowSpacing',5,'ColumnSpacing',0,'BackgroundColor','w'));
+            obj.app.label(1) = platmetaxGUI.APP(1,9,uilabel(obj.app.maingrid,'Text','Problem definition','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            obj.app.label(2) = platmetaxGUI.APP(1,6,uilabel(obj.app.maingrid,'Text','Algorithm selection','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            obj.app.label(3) = platmetaxGUI.APP(1,[1 2],uilabel(obj.app.maingrid,'Text','Result display','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             platmetaxGUI.APP([1 3],5,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));
-            
+            platmetaxGUI.APP([1 3],7,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));
+
             % The first panel
-            obj.app.grid(1)    = platmetaxGUI.APP(2,1,uigridlayout(obj.app.maingrid,'RowHeight',{1,'1x',1},'ColumnWidth',{18,18,70,'1x'},'Padding',[5 5 5 5],'RowSpacing',0,'ColumnSpacing',7,'BackgroundColor',[.95 .95 1]));
+            obj.app.dropD(1) = platmetaxGUI.APP(1,2,uidropdown(obj.app.maingrid,'BackgroundColor','w','Items',{},'ValueChangedFcn',@obj.cb_slider,'Visible',false));
+            obj.app.dropD(2) = platmetaxGUI.APP(1,2,uidropdown(obj.app.maingrid,'BackgroundColor','w','Items',{},'ValueChangedFcn',@obj.cb_slider));
+            obj.app.grid(4)  = platmetaxGUI.APP([2 3],[1 3],uigridlayout(obj.app.maingrid,'RowHeight',{'1x',40,30},'ColumnWidth',{20,150,'1x','1x',120,30,20},'Padding',[15 10 15 0],'RowSpacing',5,'BackgroundColor','w'));
+            obj.app.axes     = platmetaxGUI.APP(1,[2 6],uiaxes(obj.app.grid(4),'BackgroundColor','w','Box','on'));
+            obj.app.waittip  = platmetaxGUI.APP(1,[2 6],uilabel(obj.app.grid(4),'HorizontalAlignment','center','Text','                 Please wait ... ...','Visible',false));
+            tempTb = axtoolbar(obj.app.axes,{'rotate','pan','zoomin','zoomout'});
+            obj.app.toolD(1)   = axtoolbarbtn(tempTb,'push','Icon',obj.platmetaxGUI.icon.gif,'Tooltip','Save the evolutionary process to gif','ButtonPushedFcn',@obj.cb_toolbutton1);
+            obj.app.toolD(2)   = axtoolbarbtn(tempTb,'push','Icon',obj.platmetaxGUI.icon.newfigure,'Tooltip','Open in new figure and save to workspace','ButtonPushedFcn',@obj.cb_toolbutton2);
+            obj.app.slider     = platmetaxGUI.APP(2,[1 7],uislider(obj.app.grid(4),'Limits',[0 1],'MajorTicks',0:0.25:1,'MajorTickLabels',{'0%','25%','50%','75%','100%'},'MinorTicks',0:0.01:1,'ValueChangedFcn',@obj.cb_slider));
+            obj.app.labelD     = platmetaxGUI.APP(3,[1 2],uilabel(obj.app.grid(4),'Text','','Fontcolor',[0.0,0.0,0.0],'HorizontalAlignment','left'));
+            
+            
+            % The second panel
+            obj.app.grid(1)    = platmetaxGUI.APP(2,6,uigridlayout(obj.app.maingrid,'RowHeight',{1,'1x',1},'ColumnWidth',{18,18,70,'1x'},'Padding',[5 5 5 5],'RowSpacing',0,'ColumnSpacing',7,'BackgroundColor',[.95 .95 1]));
             tempPanel          = platmetaxGUI.APP(2,1,uipanel(obj.app.grid(1),'BorderType','none','BackgroundColor',[.95 .95 1]));
             obj.app.buttonA(1) = uibutton(tempPanel,'Position',[-2.5 -2.5 24 24],'Text','','Icon',obj.platmetaxGUI.icon.loadtable,'BackgroundColor',[.95 .95 1],'Tooltip','Load a problem','Interruptible','off','BusyAction','cancel','ButtonpushedFcn',@obj.cb_loadProblem);
             tempPanel          = platmetaxGUI.APP(2,2,uipanel(obj.app.grid(1),'BorderType','none','BackgroundColor',[.95 .95 1]));
@@ -39,24 +52,24 @@ classdef platmetaxmodule_app < handle
             obj.app.dropA      = platmetaxGUI.APP([1 3],4,uidropdown(obj.app.grid(1),'BackgroundColor',[.95 .95 1],'Tooltip','Select predefined examples','Items',{'User-defined problem','Single-objective optimization','Multi-objective optimization','Many-objective optimization','Constrained single-objective optimization',...
                                          'Constrained multi-objective optimization','Rotated optimization','Integer optimization','Binary optimization','Permutation optimization','Hybrid optimization'},'ItemsData',1:11,'Value',1,'Interruptible','off','BusyAction','cancel','ValueChangedFcn',@obj.cb_selectProblem));
           
-            % The second panel
-            obj.app.grid(2)     = platmetaxGUI.APP(3,1,uigridlayout(obj.app.maingrid,'RowHeight',num2cell([25,25,25,25,25,25,25,0,25,0,25,0,25,25,zeros(1,19),25,25,zeros(1,19),25,28,28,38,28]),'ColumnWidth',{75,50,'1x',25,20,22},'Padding',[0 10 0 0],'RowSpacing',5,'ColumnSpacing',5,'Scrollable','on','BackgroundColor','w'));
+            % The third panel
+            obj.app.grid(2)     = platmetaxGUI.APP(3,6,uigridlayout(obj.app.maingrid,'RowHeight',num2cell([25,25,25,25,25,25,25,0,25,0,25,0,25,25,zeros(1,19),25,25,zeros(1,19),25,28,28,38,28]),'ColumnWidth',{75,50,'1x',25,20,22},'Padding',[0 10 0 0],'RowSpacing',5,'ColumnSpacing',5,'Scrollable','on','BackgroundColor',[0.7,0.9,1]));
             % Encoding scheme
             tempGrid            = platmetaxGUI.APP(1,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.titleB(1)   = platmetaxGUI.APP(1,1,uilabel(tempGrid,'Text',' Encoding scheme','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.titleB(1)   = platmetaxGUI.APP(1,1,uilabel(tempGrid,'Text',' Encoding scheme','FontSize',11,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.labelB(1)   = platmetaxGUI.APP(2,1,uilabel(obj.app.grid(2),'Text','Encoding: x =','HorizontalAlignment','right'));
             obj.app.editB(1)    = platmetaxGUI.APP(2,[2 5],uieditfield(obj.app.grid(2),'Value','1,1,1,1,1,1,1,1,1,1','Tooltip','Type of each decision variable','ValueChangedFcn',@obj.cb_updateFilter));
             obj.app.labelB(3)   = platmetaxGUI.APP(3,[1 6],uilabel(obj.app.grid(2),'Text','(1. real number 2. integer 3. label 4. binary number 5. permutation)'));
             % Decision space
             tempGrid            = platmetaxGUI.APP(4,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.titleB(2)   = platmetaxGUI.APP(1,1,uilabel(tempGrid,'Text',' Decision space','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.titleB(2)   = platmetaxGUI.APP(1,1,uilabel(tempGrid,'Text',' Decision space','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.labelB(4)   = platmetaxGUI.APP(5,1,uilabel(obj.app.grid(2),'Text','Lower: x >=','HorizontalAlignment','right'));
             obj.app.editB(2)    = platmetaxGUI.APP(5,[2 5],uieditfield(obj.app.grid(2),'Value','0,0,0,0,0,0,0,0,0,0','Tooltip','Lower bound of each decision variable'));
             obj.app.labelB(5)   = platmetaxGUI.APP(6,1,uilabel(obj.app.grid(2),'Text','Upper: x <=','HorizontalAlignment','right'));
             obj.app.editB(3)    = platmetaxGUI.APP(6,[2 5],uieditfield(obj.app.grid(2),'Value','1,1,1,1,1,1,1,1,1,1','Tooltip','Upper bound of each decision variable'));
             % Data
             tempGrid            = platmetaxGUI.APP(7,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{50,20,20,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.titleB(3)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Data','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.titleB(3)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Data','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.buttonB(1)  = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add a data','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,1}));
             obj.app.buttonB(2)  = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','Enable',false,'FontSize',11,'Tooltip','Delete the data','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-1}));
             obj.app.labelB(6)   = platmetaxGUI.APP(8,1,uilabel(obj.app.grid(2),'Text','data =','HorizontalAlignment','right'));
@@ -64,7 +77,7 @@ classdef platmetaxmodule_app < handle
             obj.app.buttonB(3)  = platmetaxGUI.APP(8,5,uibutton(obj.app.grid(2),'Text','...','Tooltip','Load existing data','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_loadFunction,obj.app.editB(4),{'*.txt;*.dat;*.csv','Text file';'*.mat','MAT file'}}));
             % Initialization function
             tempGrid            = platmetaxGUI.APP(9,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{135,20,20,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.titleB(4)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Initialization function','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.titleB(4)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Initialization function','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.buttonB(4)  = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add an initialization function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,2}));
             obj.app.buttonB(5)  = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','Enable',false,'FontSize',11,'Tooltip','Delete the initialization function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-2}));
             obj.app.labelB(7)   = platmetaxGUI.APP(10,1,uilabel(obj.app.grid(2),'Text','I(N) =','HorizontalAlignment','right'));
@@ -73,7 +86,7 @@ classdef platmetaxmodule_app < handle
             obj.app.buttonB(7)  = platmetaxGUI.APP(10,6,uibutton(obj.app.grid(2),'Text','</>','FontSize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,obj.app.editB(5),'initialization'}));
             % Repair function
             tempGrid            = platmetaxGUI.APP(11,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{135,20,20,60,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.titleB(5)   = platmetaxGUI.APP(1,[1 5],uilabel(tempGrid,'Text',' Repair function','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.titleB(5)   = platmetaxGUI.APP(1,[1 5],uilabel(tempGrid,'Text',' Repair function','FontSize',11,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.buttonB(8)  = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add a repair function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,3}));
             obj.app.buttonB(9)  = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','Enable',false,'FontSize',11,'Tooltip','Delete the repair function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-3}));
             obj.app.buttonB(10) = platmetaxGUI.APP(1,4,uibutton(tempGrid,'Text','Integrate','FontSize',10,'Tooltip','Integrate the repair function, objective functions, and constraint functions into a single evaluation function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,6}));
@@ -83,7 +96,7 @@ classdef platmetaxmodule_app < handle
             obj.app.buttonB(12) = platmetaxGUI.APP(12,6,uibutton(obj.app.grid(2),'Text','</>','Fontsize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,obj.app.editB(6),'repair'}));
             % Objective functions
             tempGrid            = platmetaxGUI.APP(13,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{135,20,20,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.titleB(6)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Objective functions','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.titleB(6)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Objective functions','FontSize',11,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.buttonB(13) = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add an objective function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,4}));
             obj.app.buttonB(14) = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','Enable',false,'FontSize',11,'Tooltip','Delete the last objective function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-4}));
             obj.pro(1).label    = platmetaxGUI.APP(14,1,uilabel(obj.app.grid(2),'Text','f1(x) =','HorizontalAlignment','right'));
@@ -92,7 +105,7 @@ classdef platmetaxmodule_app < handle
             obj.pro(1).button2  = platmetaxGUI.APP(14,6,uibutton(obj.app.grid(2),'Text','</>','Fontsize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,obj.pro(1).edit,'objective'}));
             % Constraint functions
             tempGrid            = platmetaxGUI.APP(34,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{135,20,20,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.titleB(7)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Constraint functions','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.titleB(7)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Constraint functions','FontSize',11,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.buttonB(15) = platmetaxGUI.APP(1,2,uibutton(tempGrid,'Text','+','FontSize',11,'Tooltip','Add a constraint function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,5}));
             obj.app.buttonB(16) = platmetaxGUI.APP(1,3,uibutton(tempGrid,'Text','-','FontSize',11,'Tooltip','Delete the last constraint function','BackgroundColor',[.9 .9 .9],'ButtonpushedFcn',{@obj.cb_updateProblem,-5}));
             obj.con(1).labelA   = platmetaxGUI.APP(35,1,uilabel(obj.app.grid(2),'Text','g1(x) =','HorizontalAlignment','right'));
@@ -102,42 +115,30 @@ classdef platmetaxmodule_app < handle
             obj.con(1).button2  = platmetaxGUI.APP(35,6,uibutton(obj.app.grid(2),'Text','</>','Fontsize',9,'Tooltip','Create new function','BackgroundColor','w','ButtonpushedFcn',{@obj.cb_createFunction,obj.con(1).edit,'constraint'}));
             % Special difficulties
             tempGrid            = platmetaxGUI.APP(55,[1 6],uigridlayout(obj.app.grid(2),'RowHeight',{'1x'},'ColumnWidth',{127,30,30,'1x'},'Padding',[0 0 0 6],'RowSpacing',0,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.titleB(7)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Special difficulties','FontSize',13,'FontColor',[.9 .5 .2],'BackgroundColor',[.9 .9 .9],'FontWeight','bold'));
+            obj.app.titleB(7)   = platmetaxGUI.APP(1,[1 4],uilabel(tempGrid,'Text',' Special difficulties','FontSize',11,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.checkB(1)   = platmetaxGUI.APP(56,[1 6],uicheckbox(obj.app.grid(2),'FontSize',11,'Text','<large> The search space is large, e.g., having more than 100 real decision variables.','WordWrap','on','ValueChangedFcn',@obj.cb_updateFilter));
             obj.app.checkB(2)   = platmetaxGUI.APP(57,[1 6],uicheckbox(obj.app.grid(2),'FontSize',11,'Text','<expensive> The functions are computationally expensive, e.g., using less than 1000 function evaluations.','WordWrap','on','ValueChangedFcn',@obj.cb_updateFilter));
             obj.app.checkB(3)   = platmetaxGUI.APP(58,[1 6],uicheckbox(obj.app.grid(2),'FontSize',11,'Text','<multimodal> There are multiple optimal solutions with similar objective values but different decision vectors, all of which should be obtained.','WordWrap','on','ValueChangedFcn',@obj.cb_updateFilter));
             obj.app.checkB(4)   = platmetaxGUI.APP(59,[1 6],uicheckbox(obj.app.grid(2),'FontSize',11,'Text','<sparse> The optimal solutions are sparse, i.e., most decision variables of which are zero.','WordWrap','on','ValueChangedFcn',@obj.cb_updateFilter));
             
-            % The third panel
-            obj.app.grid(3)   = platmetaxGUI.APP([2 3],4,uigridlayout(obj.app.maingrid,'RowHeight',{16,21,16,21,21,16,21,21,21,4,18,'1.1x','1x'},'ColumnWidth',{'1x','1.1x','1x'},'Padding',[8 10 8 0],'RowSpacing',3,'ColumnSpacing',5,'BackgroundColor','w'));
+            % The fourth panel
+            obj.app.grid(3)   = platmetaxGUI.APP([2 3],9,uigridlayout(obj.app.maingrid,'RowHeight',{16,21,16,21,21,16,21,21,21,4,18,'1.1x','1x',30},'ColumnWidth',{'1x','1.1x','1x'},'Padding',[8 10 8 0],'RowSpacing',3,'ColumnSpacing',5,'BackgroundColor','w'));
             [obj.app.stateC,obj.app.labelC] = platmetaxGUI.GenerateLabelButton(obj.app.grid(3),zeros(1,17),@obj.cb_filter);
-            obj.app.labelC(4) = platmetaxGUI.APP(11,[1 2],uilabel(obj.app.grid(3),'Text','Algorithms','FontSize',13,'FontColor',[.2 .4 .7],'FontWeight','bold'));
-            obj.app.labelC(5) = platmetaxGUI.APP(11,3,uilabel(obj.app.grid(3),'HorizontalAlignment','right','FontSize',10,'FontColor',[.2 .4 .7]));
-            obj.app.listC     = platmetaxGUI.APP(12,[1 3],uilistbox(obj.app.grid(3),'FontColor',[.2 .4 .7],'ValueChangedFcn',@obj.cb_updateList));
-            obj.app.dropC     = platmetaxGUI.APP(11,2,uidropdown(obj.app.grid(3),'BackgroundColor','w','FontColor',[.2 .4 .7],'Items',{'All year'},'ValueChangedFcn',@(h,~)platmetaxGUI.UpdateAlgProListYear(obj.app.listC,h,obj.app.labelC(5),obj.platmetaxGUI.algList)));
+            obj.app.labelC(4) = platmetaxGUI.APP(11,[1 2],uilabel(obj.app.grid(3),'Text','Algorithms','FontSize',13,'FontColor',[0,0,0],'FontWeight','bold'));
+            obj.app.labelC(5) = platmetaxGUI.APP(11,3,uilabel(obj.app.grid(3),'HorizontalAlignment','right','FontSize',10,'FontColor',[0.93,0.69,0.13]));
+            obj.app.listC     = platmetaxGUI.APP(12,[1 3],uilistbox(obj.app.grid(3),'FontColor',[0.93,0.69,0.13],'ValueChangedFcn',@obj.cb_updateList));
+            obj.app.dropC     = platmetaxGUI.APP(11,2,uidropdown(obj.app.grid(3),'BackgroundColor','w','FontColor',[0.93,0.69,0.13],'Items',{'All year'},'ValueChangedFcn',@(h,~)platmetaxGUI.UpdateAlgProListYear(obj.app.listC,h,obj.app.labelC(5),obj.platmetaxGUI.algList)));
             obj.app.listD     = uilist(obj.app.grid(3),obj.platmetaxGUI.app.figure,obj.platmetaxGUI.icon);
             obj.app.tipD      = platmetaxGUI.APP(13,[1 3],uilabel(obj.app.grid(3),'Text','Select an algorithm','HorizontalAlignment','center'));
             obj.app.listD.grid.Padding = [0,0,0,0];
             platmetaxGUI.APP(13,[1 3],obj.app.listD.grid);
-            
-            % The fourth panel
-            obj.app.dropD(1) = platmetaxGUI.APP(1,7,uidropdown(obj.app.maingrid,'BackgroundColor','w','Items',{},'ValueChangedFcn',@obj.cb_slider,'Visible',false));
-            obj.app.dropD(2) = platmetaxGUI.APP(1,7,uidropdown(obj.app.maingrid,'BackgroundColor','w','Items',{},'ValueChangedFcn',@obj.cb_slider));
-            obj.app.grid(4)  = platmetaxGUI.APP([2 3],[6 8],uigridlayout(obj.app.maingrid,'RowHeight',{'1x',40,30},'ColumnWidth',{20,150,'1x','1x',120,30,20},'Padding',[15 10 15 0],'RowSpacing',5,'BackgroundColor','w'));
-            obj.app.axes     = platmetaxGUI.APP(1,[2 6],uiaxes(obj.app.grid(4),'BackgroundColor','w','Box','on'));
-            obj.app.waittip  = platmetaxGUI.APP(1,[2 6],uilabel(obj.app.grid(4),'HorizontalAlignment','center','Text','                 Please wait ... ...','Visible',false));
-            tempTb = axtoolbar(obj.app.axes,{'rotate','pan','zoomin','zoomout'});
-            obj.app.toolD(1)   = axtoolbarbtn(tempTb,'push','Icon',obj.platmetaxGUI.icon.gif,'Tooltip','Save the evolutionary process to gif','ButtonPushedFcn',@obj.cb_toolbutton1);
-            obj.app.toolD(2)   = axtoolbarbtn(tempTb,'push','Icon',obj.platmetaxGUI.icon.newfigure,'Tooltip','Open in new figure and save to workspace','ButtonPushedFcn',@obj.cb_toolbutton2);
-            obj.app.slider     = platmetaxGUI.APP(2,[1 7],uislider(obj.app.grid(4),'Limits',[0 1],'MajorTicks',0:0.25:1,'MajorTickLabels',{'0%','25%','50%','75%','100%'},'MinorTicks',0:0.01:1,'ValueChangedFcn',@obj.cb_slider));
-            obj.app.labelD     = platmetaxGUI.APP(3,[1 2],uilabel(obj.app.grid(4),'Text','','HorizontalAlignment','left'));
-            obj.app.buttonD(1) = platmetaxGUI.APP(3,3,uibutton(obj.app.grid(4),'push','Text','Start','FontSize',16,'Enable',false,'ButtonpushedFcn',@obj.cb_start));
-            obj.app.buttonD(2) = platmetaxGUI.APP(3,4,uibutton(obj.app.grid(4),'push','Text','Stop','FontSize',16,'Enable',false,'ButtonpushedFcn',@(~,~)set(obj.app.buttonD(1:2),{'Enable','Text'},{true,'Start';false,'Stop'})));
+            obj.app.buttonD(1) = platmetaxGUI.APP(14,1,uibutton(obj.app.grid(3),'push','Text','Start','FontColor',[1 1 1],"BackgroundColor",[0.07,0.62,1.00],'FontSize',16,'Enable',false,'ButtonpushedFcn',@obj.cb_start));
+            obj.app.buttonD(2) = platmetaxGUI.APP(14,2,uibutton(obj.app.grid(3),'push','Text','Stop','FontColor',[1 1 1],"BackgroundColor",[0.07,0.62,1.00],'FontSize',16,'Enable',false,'ButtonpushedFcn',@(~,~)set(obj.app.buttonD(1:2),{'Enable','Text'},{true,'Start';false,'Stop'})));
             obj.app.menuD      = uicontext(obj.platmetaxGUI.app.figure,120);
             obj.app.menuD.add('  Save best solutions','',{@obj.cb_save,1});
             obj.app.menuD.add('  Save all solutions','',{@obj.cb_save,2});
             obj.app.menuD.flush();
-            obj.app.buttonD(3) = platmetaxGUI.APP(3,[6 7],uibutton(obj.app.grid(4),'push','Text','Save','FontSize',16,'Enable',false,'ButtonpushedFcn',@(~,~)obj.app.menuD.show()));
+            obj.app.buttonD(3) = platmetaxGUI.APP(14,3,uibutton(obj.app.grid(3),'push','Text','Save','FontColor',[1 1 1],"BackgroundColor",[0.07,0.62,1.00],'FontSize',16,'Enable',false,'ButtonpushedFcn',@(~,~)obj.app.menuD.show()));
             
             % Initialization
             obj.cb_updateFilter();

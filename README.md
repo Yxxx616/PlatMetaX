@@ -74,7 +74,7 @@ Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX for rese
 ## Contact us
 join us：
 <p style="text-align: center">
-  <img src="https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/qqmobCode.png" alt="qq mob">
+  <img src="https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/qqmobCode.png" alt="qqmob">
 </p>
 
 email us：501216619@qq.com

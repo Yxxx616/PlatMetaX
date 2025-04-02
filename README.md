@@ -2,7 +2,7 @@
 **A Matlab platform for meta-black-box optimization, covering rl-based, sl-based, ec-based meta-learning.**
 ![PlatMetaX Logo](https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/platmetaxLOGO2.0.png)
 
-![GitHub](https://img.shields.io/github/license/Yxxx616/PlatMetaX)
+![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![MATLAB Version](https://img.shields.io/badge/MATLAB-R2021a%2B-orange)
 ![Release](https://img.shields.io/badge/release-2.0-success)
 
@@ -71,13 +71,22 @@ platmetax.m
 # PlatMetaX Copyright
 Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX for research purposes. All publications which use this platform or MetaBBO code in the platform should acknowledge the use of "PlatMetaX" and reference "Xu Yang, and Rui Wang. PlatMetaX: A MATLAB platform for meta-black-box optimization, https://doi.org/10.48550/arXiv.2503.22722".
 
-## Contact us
-join us：
-<p style="text-align: center">
-  <img src="https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/qqmobCode.png" alt="qqmob">
-</p>
 
-email us：501216619@qq.com
+# Contact Us
+
+## Join Our Community
+- **QQ Group**: 826619039  
+  <center>
+    ![QQ Group QR Code](https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/qqmobCode.png "Join Our QQ Group")
+  </center>
+
+## Contact Us via Email
+- **Email Address**: 501216619@qq.com
+
+---
+
+### Note on Link Parsing
+The image link above may fail to parse due to network issues or an invalid URL. If you encounter this problem, please check the legality of the link and try again later. If you do not require parsing of this specific link, feel free to continue with other inquiries.
 
 - *声明：非完全原创，基于platEMO平台*
 - *建议：有PlatEMO基础的同学食用更佳*

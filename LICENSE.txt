@@ -1,4 +1,4 @@
-MIT License
+Non-commercial Use License
 
 Copyright (c) 2025 EvoSys_NUDT
 

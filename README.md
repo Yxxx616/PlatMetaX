@@ -76,12 +76,10 @@ Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX for rese
 
 ## Join Our Community
 - **QQ Group**: 826619039  
-![QQ Group QR Code](https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/qqmobCode.png "Join Our QQ Group")
+![QQ Group QR Code](https://github.com/Yxxx616/PlatMetaX/blob/main/GUI/qqmobCode.png "Join Our QQ Group" width="200")
 
 ## Contact Us via Email
 - **Email Address**: 501216619@qq.com
-
----
 
 ### Note on Link Parsing
 The image link above may fail to parse due to network issues or an invalid URL. If you encounter this problem, please check the legality of the link and try again later. If you do not require parsing of this specific link, feel free to continue with other inquiries.

@@ -104,7 +104,7 @@ platmetax;
   doi={10.48550/arXiv.2503.22722}
 }
 ```
-- Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX for research purposes. All publications which use this platform or MetaBBO code in the platform should acknowledge the use of "PlatMetaX" and reference "Xu Yang, and Rui Wang. PlatMetaX: A MATLAB platform for meta-black-box optimization, https://doi.org/10.48550/arXiv.2503.22722".
+- Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX for research purposes. All publications which use this platform or MetaBBO code in the platform should acknowledge the use of "PlatMetaX" and reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. PlatMetaX: A MATLAB platform for meta-black-box optimization. https://doi.org/10.48550/arXiv.2503.22722".
 - License: Academic use only. Commercial applications require written permission.
 - Dependency Notice: Built upon PlatEMO framework (Copyright (c) 2024 BIMK Group. You are free to use the PlatEMO for research purposes. All publications which use any code from PlatEMO in the platform should acknowledge the use of "PlatEMO" and reference "Ye Tian, Ran Cheng, Xingyi Zhang, and Yaochu Jin, PlatEMO: A MATLAB platform for evolutionary multi-objective optimization [educational forum], IEEE Computational Intelligence Magazine, 2017, 12(4): 73-87".)
 

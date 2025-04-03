@@ -64,7 +64,7 @@ function varargout = platmetax(varargin)
 % for research purposes. All publications which use this platform or MetaBBO
 % code in the platform should acknowledge the use of "PlatMetaX" and 
 % reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
-% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% PlatMetaX: An Integrated MATLAB platform for meta-black-box optimization.
 % https://doi.org/10.48550/arXiv.2503.22722".
 %--------------------------------------------------------------------------
 

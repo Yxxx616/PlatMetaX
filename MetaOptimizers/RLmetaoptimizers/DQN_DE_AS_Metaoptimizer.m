@@ -1,7 +1,7 @@
-function agent = DDPG_DE_F_Metaoptimizer(obsInfo, actInfo)
-% Algorithm configuration-parameter control
-% DDPG as meta-optimizer, being trained via RL.
-% DE as base-optimizer, with F setting as opotimization object.
+function agent = DQN_DE_AS_Metaoptimizer(obsInfo, actInfo)
+% Algorithm Selection
+% DQN as meta-optimizer, being trained via RL.
+% DE with different mutation strategy selection as base-optimizer.
 
 %------------------------------- Copyright --------------------------------
 % Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
@@ -11,5 +11,5 @@ function agent = DDPG_DE_F_Metaoptimizer(obsInfo, actInfo)
 % PlatMetaX: An Integrated MATLAB platform for meta-black-box optimization.
 % https://doi.org/10.48550/arXiv.2503.22722".
 %--------------------------------------------------------------------------
-agent = rlDDPGAgent(obsInfo,actInfo);
+    agent = rlDQNAgent(obsInfo,actInfo);
 end

@@ -1,7 +1,12 @@
 classdef MLP_Alg_Rec_Environment < rl.env.MATLABEnvironment
-    %MYENVIRONMENT: Template for defining custom environment in MATLAB.    
-    
-    %% Properties (set properties' attributes accordingly)
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: An Integrated MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
+%--------------------------------------------------------------------------
     properties
         % Specify and initialize environment's necessary properties    
         curProblem

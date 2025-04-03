@@ -6,7 +6,7 @@ classdef uilist < handle
 % for research purposes. All publications which use this platform or MetaBBO
 % code in the platform should acknowledge the use of "PlatMetaX" and 
 % reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
-% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% PlatMetaX: An Integrated MATLAB platform for meta-black-box optimization.
 % https://doi.org/10.48550/arXiv.2503.22722".
 %--------------------------------------------------------------------------
 
@@ -106,7 +106,7 @@ classdef uilist < handle
             item.fold  = false;
             item.title = uibutton(obj.grid,'Text',name,'FontSize',11,'BackgroundColor',color,'FontColor',[1 1 1],'Tooltip',Comment,'ButtonPushedFcn',@obj.cb_fold);
             item.title.Layout.Column = [1 4];
-            item.tip = uibutton(obj.grid,'Text','¨‹','FontSize',10,'BackgroundColor',color,'FontColor',[1 1 1],'Tooltip',Comment,'ButtonPushedFcn',@obj.cb_callmenu);
+            item.tip = uibutton(obj.grid,'Text','â–¼','FontSize',10,'BackgroundColor',color,'FontColor',[1 1 1],'Tooltip',Comment,'ButtonPushedFcn',@obj.cb_callmenu);
             item.tip.Layout.Column = 4;
             item.label  = [];
             item.edit   = [];
@@ -121,7 +121,7 @@ classdef uilist < handle
                 end
                 item.edit(end).Layout.Column = 3;
                 if strcmp(Parameter{i,1},'maxFE')
-                    item.button = uibutton(obj.grid,'Text','¨‹','FontSize',10,'BackgroundColor','w','UserData',{item.label(end),item.edit(end)},'ButtonPushedFcn',@obj.cb_switch);
+                    item.button = uibutton(obj.grid,'Text','â–¼','FontSize',10,'BackgroundColor','w','UserData',{item.label(end),item.edit(end)},'ButtonPushedFcn',@obj.cb_switch);
                     item.button.Layout.Column = 4;
                 end
             end
@@ -180,7 +180,7 @@ classdef uilist < handle
             edits = [obj.items.edit];
             set(edits,'Enable',value);
             userDataResult = get(edits,'UserData');
-%             20250331ĞŞ¸Ä£¬°Ñ»ù±¾ÀàĞÍ×ª³ÉcellÔª°û£¬½â¾öĞŞ¸Ä²¼¾ÖÖ®ºó±¨´íµÄÎÊÌâ
+%             20250331ä¿®æ”¹ï¼ŒæŠŠåŸºæœ¬ç±»å‹è½¬æˆcellå…ƒèƒï¼Œè§£å†³ä¿®æ”¹å¸ƒå±€ä¹‹åæŠ¥é”™çš„é—®é¢˜
             if ~iscell(userDataResult)
                 userDataResult ={get(edits,'UserData')};
             end
@@ -194,9 +194,9 @@ classdef uilist < handle
                 if obj.items(i).title == ui
                     obj.items(i).fold = ~obj.items(i).fold;
                     if obj.items(i).fold
-                        obj.items(i).tip.Text = '¡ø';
+                        obj.items(i).tip.Text = 'â–²';
                     else
-                        obj.items(i).tip.Text = '¨‹';
+                        obj.items(i).tip.Text = 'â–¼';
                     end
                     if ~isempty(obj.items(i).label)
                         [obj.items(i).label.Visible] = deal(~obj.items(i).fold);
@@ -225,11 +225,11 @@ classdef uilist < handle
             if strcmp(ui.UserData{1}.Text,'maxFE')
                 set(ui.UserData{1},'Text','maxRuntime','Tooltip','Maximum runtime (in second)');
                 set(ui.UserData{2},'Value','1','Tooltip','Maximum runtime (in second)');
-                set(ui,'Text','¡ø');
+                set(ui,'Text','â–²');
             else
                 set(ui.UserData{1},'Text','maxFE','Tooltip','Maximum number of function evaluations');
                 set(ui.UserData{2},'Value','10000','Tooltip','Maximum number of function evaluations');
-                set(ui,'Text','¨‹');
+                set(ui,'Text','â–¼');
             end
         end
         %% Open file

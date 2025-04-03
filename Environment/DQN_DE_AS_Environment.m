@@ -1,4 +1,4 @@
-classdef PPO_DE_F_Environment < rl.env.MATLABEnvironment
+classdef DQN_DE_AS_Environment < rl.env.MATLABEnvironment
 %------------------------------- Copyright --------------------------------
 % Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
 % for research purposes. All publications which use this platform or MetaBBO
@@ -11,24 +11,32 @@ classdef PPO_DE_F_Environment < rl.env.MATLABEnvironment
         problemSet
         curPIdx
         curProblem
-        curProblemState
         baseoptimizer
-        IsDone
         bestPops
         task
     end
     
+    properties
+        % Initialize system state [x,dx,theta,dtheta]'
+        State = zeros(13,1)
+    end
+    
+    properties(Access = protected)
+        % Initialize internal flag to indicate episode termination
+        IsDone = false        
+    end
+    
     methods
-        function this = PPO_DE_F_Environment(ps,bo,task)
+        function this = DQN_DE_AS_Environment(ps,bo,task)
             % Initialize observation settings  /population state
-            ObservationInfo = rlNumericSpec([6 1]);
+            ObservationInfo = rlNumericSpec([13 1]);
             ObservationInfo.Name = 'observations';
             ObservationInfo.Description = '';
 
             % Initialize BOparameters settings    /
-            ActionInfo = rlNumericSpec([1 1],'LowerLimit',0,'UpperLimit',2);
+            ActionInfo = rlFiniteSetSpec([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
             ActionInfo.Name = 'BOparameters';
-            ActionInfo.Description = 'DE-F ONLINE TUNING';
+            ActionInfo.Description = 'DE-Mutation strategy selection';
 
             % The following line implements built-in functions of the RL environment
             this = this@rl.env.MATLABEnvironment(ObservationInfo,ActionInfo);
@@ -50,7 +58,7 @@ classdef PPO_DE_F_Environment < rl.env.MATLABEnvironment
             else
                 InitialObservation = calSOPState(this.baseoptimizer);
             end
-            this.curProblemState = InitialObservation;
+            this.State = InitialObservation;
         end
 
         function [Observation,Reward,IsDone,LoggedSignals] = step(this, BOparameters)
@@ -58,7 +66,7 @@ classdef PPO_DE_F_Environment < rl.env.MATLABEnvironment
             %   此处显示详细说明
             LoggedSignals = [];
              [Reward, Observation, IsDone, bestPop] = this.baseoptimizer.update(BOparameters, this.curProblem);
-            this.curProblemState = Observation;
+            this.State = Observation;
             this.IsDone = IsDone;
             if IsDone
                 this.bestPops(class(this.curProblem)) = bestPop;

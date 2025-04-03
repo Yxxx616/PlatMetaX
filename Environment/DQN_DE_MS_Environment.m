@@ -1,7 +1,12 @@
 classdef DQN_DE_MS_Environment < rl.env.MATLABEnvironment
-    %ENVIRONMENT 此处显示有关此类的摘要
-    %   此处显示详细说明
-    
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: An Integrated MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
+%--------------------------------------------------------------------------
     properties
         problemSet
         curPIdx

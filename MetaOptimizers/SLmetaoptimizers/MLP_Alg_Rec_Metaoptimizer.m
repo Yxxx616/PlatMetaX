@@ -1,7 +1,16 @@
 classdef MLP_Alg_Rec_Metaoptimizer < rl.agent.CustomAgent
-    % MetaOptimizerRL 基于强化学习的元优化器模板类
-    % 继承自rl.agent.CustomAgent，实现必要接口
-    
+% Algorithm selection
+% MLP as meta-optimizer, being trained via SL.
+% (ABC,CSO,DE,PSO,SA) as base-optimizer.
+
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
+%--------------------------------------------------------------------------
     properties
         mlpNN
         curaction = 1
@@ -97,11 +106,9 @@ classdef MLP_Alg_Rec_Metaoptimizer < rl.agent.CustomAgent
                     'ValidationFrequency', 30, ...
                     'ValidationPatience', 10);
                 
-                % 获取当前脚本的路径
+
                 currentScriptPath = mfilename('fullpath');
-                % 获取当前脚本的上上级目录路径
                 parentDir = fileparts(fileparts(fileparts(currentScriptPath)));
-                % 拼接目标文件夹路径
                 targetFolder = fullfile(parentDir, 'TSP_Instances');
                 saveFilePath = fullfile(targetFolder, 'data.mat');
                 save(saveFilePath, 'X', 'Y');
@@ -111,8 +118,6 @@ classdef MLP_Alg_Rec_Metaoptimizer < rl.agent.CustomAgent
         end  
         
         function resetImpl(obj)
-            % 重置智能体状态
-            % 初始化或重置内部状态变量
             obj.expCount = 1;
             obj.sampleCount = 1;
         end

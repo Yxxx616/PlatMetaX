@@ -1,4 +1,14 @@
 classdef TF_DE_Sol_Baseoptimizer < BASEOPTIMIZER
+% <2025> <single> <real/integer> <large/none> <constrained/none> <learned/none>
+
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
+%--------------------------------------------------------------------------    
     properties
         Population      % 当前种群
         BestSolution    % 历史最佳解

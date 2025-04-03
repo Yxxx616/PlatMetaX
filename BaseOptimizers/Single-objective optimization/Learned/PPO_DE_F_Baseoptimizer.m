@@ -8,7 +8,12 @@ classdef PPO_DE_F_Baseoptimizer < BASEOPTIMIZER
 % heuristic for global optimization over continuous spaces, Journal of
 % Global Optimization, 1997, 11(4): 341-359.
 %------------------------------- Copyright --------------------------------
-% Copyright (c) 2025.
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
 %--------------------------------------------------------------------------
     properties
         curProblem

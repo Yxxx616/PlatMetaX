@@ -7,6 +7,14 @@ classdef TSPs < PROBLEM
 % optimisation: some nondominated points are better than others.
 % Proceedings of the Annual Conference on Genetic and Evolutionary
 % Computation, 2007, 773-780.
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
+%--------------------------------------------------------------------------
     properties(SetAccess = private)
         R;  % Locations of points
         C;  % Adjacency matrix

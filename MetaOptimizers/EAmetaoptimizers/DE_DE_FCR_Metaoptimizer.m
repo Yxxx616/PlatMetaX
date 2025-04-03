@@ -1,7 +1,16 @@
 classdef DE_DE_FCR_Metaoptimizer < rl.agent.CustomAgent
-    % MetaOptimizerRL 基于强化学习的元优化器模板类
-    % 继承自rl.agent.CustomAgent，实现必要接口
-    
+% Algorithm configuration-parameter tuning
+% DE as meta-optimizer, being trained via EL.
+% DE as base-optimizer, with mutation strategy generation as opotimization object.
+
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
+%-------------------------------------------------------------------------- 
     properties
         metaTable
         metaObj

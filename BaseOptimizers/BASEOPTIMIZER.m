@@ -20,17 +20,6 @@ classdef BASEOPTIMIZER < handle & matlab.mixin.Heterogeneous
     end
     methods(Sealed)
         function Init(obj,Problem)
-        %Solve - Use the algorithm to solve a problem.
-        %
-        %   obj.Solve(Pro) uses the algorithm to solve a problem, where Pro
-        %   is a PROBLEM object.
-        %
-        %   In terms of the default obj.outputFcn, the result will be
-        %   displayed when obj.save = 0 and saved when obj.save > 0.
-        %
-        %   Example:
-        %       Algorithm.Solve(Problem)
-            
             try
                 obj.result = {};
                 obj.metric = struct('runtime',0);

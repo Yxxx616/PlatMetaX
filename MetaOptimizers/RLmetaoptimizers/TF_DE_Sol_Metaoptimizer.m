@@ -1,4 +1,18 @@
 function agent =  TF_DE_Sol_Metaoptimizer(obsInfo, actInfo)
+% to do %
+% Algorithm generation-solution manipulation
+% required MATLAB >= 2024a
+% Transformer neural network as meta-policy, being trained via RL.
+% DE as base-optimizer, with solution manipulation as opotimization object.
+
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
+%--------------------------------------------------------------------------
     initoption = rlAgentInitializationOptions(UseRNN=true);
     agentoption = rlDDPGAgentOptions(SequenceLength=48);
     actorNetwork = createActorTransformer(obsInfo, actInfo);

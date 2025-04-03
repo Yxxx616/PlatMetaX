@@ -3,15 +3,17 @@ classdef BBOBconsF13 < PROBLEM
 % Linear Slope function
 
 %------------------------------- Reference --------------------------------
-% Paul Dufossé, Nikolaus Hansen, Dimo Brockhoff, Phillipe R. Sampaio, Asma Atamna, and Anne Auger.
-% Building scalable test problems for benchmarking constrained optimizers. 2022. To be submitted to the
-% SIAM Journal of Optimization.
+% Paul Dufossé, Nikolaus Hansen, Dimo Brockhoff, Phillipe R. Sampaio, Asma 
+% Atamna, and Anne Auger. Building scalable test problems for benchmarking 
+% constrained optimizers. 2022. To be submitted to the SIAM Journal of 
+% Optimization.
 %------------------------------- Copyright --------------------------------
-% Copyright (c) 2025 EvoX Group. You are free to use the PlatMetaX for
-% research purposes. All publications which use this platform or any code
-% in the platform should acknowledge the use of "PlatMetaX" and reference "Xu Yang, Rui Wang, et. al. 
-% PlatMetaX: An Integrated MATLAB platform for Meta-Black-Box Optimization 
-% NIPs 2025".
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
 %--------------------------------------------------------------------------
 
     properties(Access = private)

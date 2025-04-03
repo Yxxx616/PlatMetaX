@@ -9,7 +9,7 @@ function varargout = platmetax(varargin)
 % All the acceptable names and values are:
 %   'metabboComps'  <String>         common str of MetaBBO env, MO, BO
 %	'algorithm'     <function handle>	an algorithm
-%   'problemSet'   <String>	        a problem set
+%   'problemSet'    <String>	        a problem set
 %	'problem'       <function handle>	a problem
 %   'N'             <positive integer>  population size
 %   'M'             <positive integer>  number of objectives
@@ -58,6 +58,15 @@ function varargout = platmetax(varargin)
 %   platmetax('task', @Test, 'metabboComps', 'DE_DE_FCR', 'problemSet','BBOBEC')
 %%  Test Traditional base-optimizer
 %   platmetax('task', @TestTraditionalAlg,'algorithm',@PSO,'problem',@SOP_F1,'N',50,'maxFE',20000)
+
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: A MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
+%--------------------------------------------------------------------------
 
     cd(fileparts(mfilename('fullpath')));
     addpath(genpath(cd));

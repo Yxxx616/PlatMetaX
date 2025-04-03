@@ -100,11 +100,14 @@ platmetax;
 
 ## Citation & Licensing
 ```bibtex
-@misc{platmetax2025,
-  title={PlatMetaX: A MATLAB Platform for Meta-Black-Box Optimization},
-  author={Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He},
-  year={2025},
-  doi={10.48550/arXiv.2503.22722}
+@misc{yang2025platmetaxintegratedmatlabplatform,
+      title={PlatMetaX: An Integrated MATLAB platform for Meta-Black-Box Optimization}, 
+      author={Xu Yang and Rui Wang and Kaiwen Li and Wenhua Li and Tao Zhang and Fujun He},
+      year={2025},
+      eprint={2503.22722},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2503.22722}, 
 }
 ```
 - Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX for research purposes. All publications which use this platform or MetaBBO code in the platform should acknowledge the use of "PlatMetaX" and reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. PlatMetaX: A MATLAB platform for meta-black-box optimization. https://doi.org/10.48550/arXiv.2503.22722".

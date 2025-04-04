@@ -15,8 +15,7 @@ classdef TemplateEnvironment < rl.env.MATLABEnvironment
     end
     
     properties
-        % Initialize system state [x,dx,theta,dtheta]'
-        State = zeros(4,1)
+        State
     end
     
     properties(Access = protected)

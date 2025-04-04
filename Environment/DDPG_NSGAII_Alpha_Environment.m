@@ -17,7 +17,6 @@ classdef DDPG_NSGAII_Alpha_Environment < rl.env.MATLABEnvironment
         task
     end
     properties
-        % Initialize system state [x,dx,theta,dtheta]'
         State
     end
     

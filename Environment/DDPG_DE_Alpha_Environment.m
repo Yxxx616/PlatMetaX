@@ -17,8 +17,7 @@ classdef DDPG_DE_Alpha_Environment < rl.env.MATLABEnvironment
     end
     
     properties
-        % Initialize system state [x,dx,theta,dtheta]'
-        State = zeros(13,1)
+        State
     end
     
     properties(Access = protected)

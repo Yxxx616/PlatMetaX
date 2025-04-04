@@ -50,7 +50,7 @@ https://doi.org/10.48550/arXiv.2503.22722
 - Added Transformer-based meta-optimizer (`Transformer_DE_Sol_Metaoptimizer.m`)  
 - Expanded benchmark problem sets
 
-### v1.0 (January 2024)
+### v1.0 (January 2025)
 - Core framework implementation  
 - Baseline RL/SL/EL meta-optimizers  
 - Basic GUI functionality
@@ -60,13 +60,12 @@ https://doi.org/10.48550/arXiv.2503.22722
 ## Getting Started
 
 ### Prerequisites
-- MATLAB R2021a or later (2024a  for transformer integration)
+- MATLAB R2021a or later (2024a for transformer integration)
 - Python 3.8+ and openai (for LLM integration)  
 
 ### Installation
 ```bash
 git clone https://github.com/Yxxx616/PlatMetaX.git
-addpath(genpath('PlatMetaX'));
 ```
 
 ### Basic Usage

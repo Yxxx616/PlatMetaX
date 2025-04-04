@@ -19,7 +19,6 @@ classdef MLP_Alg_Rec_Environment < rl.env.MATLABEnvironment
     end
     
     properties
-        % Initialize system state [x,dx,theta,dtheta]'
         State
     end
     

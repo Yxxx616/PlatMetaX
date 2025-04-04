@@ -20,7 +20,6 @@ classdef DE_DE_FCR_Environment < rl.env.MATLABEnvironment
     end
     
     properties
-        % Initialize system state [x,dx,theta,dtheta]'
         State
     end
     

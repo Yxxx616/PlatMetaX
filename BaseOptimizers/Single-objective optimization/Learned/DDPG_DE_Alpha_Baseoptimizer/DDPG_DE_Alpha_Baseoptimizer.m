@@ -74,8 +74,6 @@ classdef DDPG_DE_Alpha_Baseoptimizer < BASEOPTIMIZER
         end
         
         function state = calState(this)
-        %计算约束单目标优化特征
-            % 识别可行点
             state = zeros(14,1);
             consSum = sum(this.Population.cons,2);
             objVec = this.Population.objs;

@@ -1,0 +1,69 @@
+classdef DDPG_DE_AS_Baseoptimizer < BASEOPTIMIZER
+% <2025> <single> <real/integer> <large/none> <constrained/none> <learned/none>
+
+%------------------------------- Reference --------------------------------
+% R. Storn and K. Price, Differential evolution-a simple and efficient
+% heuristic for global optimization over continuous spaces, Journal of
+% Global Optimization, 1997, 11(4): 341-359.
+%------------------------------- Copyright --------------------------------
+% Copyright (c) 2025 EvoSys_NUDT Group. You are free to use the PlatMetaX
+% for research purposes. All publications which use this platform or MetaBBO
+% code in the platform should acknowledge the use of "PlatMetaX" and 
+% reference "Xu Yang, Rui Wang, Kaiwen Li, Wenhua Li, Tao Zhang and Fujun He. 
+% PlatMetaX: An Integrated MATLAB platform for meta-black-box optimization.
+% https://doi.org/10.48550/arXiv.2503.22722".
+%--------------------------------------------------------------------------
+    properties
+        consNum
+        Population
+        NP
+        baseperformance
+        curBP
+    end
+    methods
+        function init(baseOptimizer,problem)
+            %% Generate random population
+            baseOptimizer.curProblem = problem;
+            baseOptimizer.Population = problem.Initialization();
+            
+            [~,baseOptimizer.consNum] = size(baseOptimizer.Population.cons);
+            baseOptimizer.NP = problem.N;
+            baseOptimizer.baseperformance = min(baseOptimizer.Population.objs);
+            baseOptimizer.curBP = baseOptimizer.baseperformance;
+        end
+        
+        function [reward, nextState, done, bestPop] = update(baseOptimizer,BOparameters,Problem)
+            MatingPool = TournamentSelection(2,2*Problem.N,FitnessSingle(baseOptimizer.Population));
+            Offspring  = OperatorDE(Problem,baseOptimizer.Population,baseOptimizer.Population(MatingPool(1:end/2)),baseOptimizer.Population(MatingPool(end/2+1:end)),{baseOptimizer.CR,BOparameters,0,0});
+            replace             = FitnessSingle(baseOptimizer.Population) > FitnessSingle(Offspring);
+            baseOptimizer.Population(replace) = Offspring(replace);
+            nextState = calSOPState(baseOptimizer);
+            nofinish = baseOptimizer.NotTerminated(baseOptimizer.Population);
+            done = ~nofinish;
+            currentBP = min(baseOptimizer.Population.objs);
+            if isnan(currentBP)
+                currentBP = baseOptimizer.curBP;
+                reward = -10;
+            elseif currentBP - baseOptimizer.curBP > 0
+                reward = -1;
+            elseif currentBP - baseOptimizer.curBP == 0
+                reward  = 0;
+            else
+                reward = 1;
+            end
+            baseOptimizer.curBP = currentBP;
+            baseOptimizer.baseperformance = min(currentBP,baseOptimizer.baseperformance);
+            if baseOptimizer.baseperformance > 1e-8
+                reward = reward - 1;
+            end
+            if done
+                bestPop = baseOptimizer.Population;
+                if baseOptimizer.baseperformance < 1e-8
+                    reward = reward + 100;
+                end
+            else
+                bestPop = 0;
+            end
+        end
+    end
+end

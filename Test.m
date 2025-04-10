@@ -20,7 +20,7 @@ classdef Test < handle
                 obj.TestingSetName = class(problemset);
                 obj.TestingSet{1} = problemset;
             end
-            obj.env = feval(envName, obj.TestingSet, obj.BaseOptimizer, 'train');
+            obj.env = feval(envName, obj.TestingSet, obj.BaseOptimizer, 'test');
             fn = load(['AgentModel/', moName, '_finalAgent.mat']);
             obj.MetaOptimizer = fn.agent;
         end

@@ -10,6 +10,10 @@
 ## Paper reference
 https://doi.org/10.48550/arXiv.2503.22722
 
+## Video Tutorials (Chinese)
+- Introduction：https://www.bilibili.com/video/BV1eLdbYDENm/?vd_source=dfbc072c8952c8edc59f3f80f9f789e0
+- Download & Usage: https://www.bilibili.com/video/BV1mFLZzYE6B/?vd_source=dfbc072c8952c8edc59f3f80f9f789e0
+updating...
 
 ## Key Features
 

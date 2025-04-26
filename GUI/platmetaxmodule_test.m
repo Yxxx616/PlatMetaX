@@ -39,7 +39,7 @@ classdef platmetaxmodule_test < handle
             platmetaxGUI.APP([1 2],2,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));
             % The second panel
             obj.app.grid(1)   = platmetaxGUI.APP(1,4,uigridlayout(obj.app.maingrid,'RowHeight',{18,16,21,16,21,16,21,20,'1x'},'ColumnWidth',{'1x'},'Padding',[0 10 0 0],'RowSpacing',3,'ColumnSpacing',5,'BackgroundColor','w'));
-            obj.app.label(1) = platmetaxGUI.APP(1,[1 9],uilabel(obj.app.grid(1),'Text','Algorithm selection','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            obj.app.label(1) = platmetaxGUI.APP(1,[1 9],uilabel(obj.app.grid(1),'Text','Algorithm and problem selection','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             [obj.app.stateA,obj.app.labelA] = platmetaxGUI.GenerateLabelButtonTest(obj.app.grid(1),[0,1,0,1,zeros(1,13)],@obj.cb_filter);
             obj.app.labelA(4) = platmetaxGUI.APP(8,[1 2],uilabel(obj.app.grid(1),'Text','Algorithms','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.labelA(5) = platmetaxGUI.APP(8,4,uilabel(obj.app.grid(1),'HorizontalAlignment','right','FontSize',10,'FontColor',[0.93,0.69,0.13]));

@@ -263,8 +263,16 @@ classdef platmetaxGUI < handle
                         f   = fopen(filename);
                         str = fgetl(f);
                         fclose(f);
-                        assert(contains(str,['< ',fileType]));
-                        addpath(Path);
+                        if fileType == 'BASEOPTIMIZER'
+                            if contains(str,['< ',fileType]) || contains(str,['< ','ALGORITHM']);
+                                addpath(Path);
+                            else
+                                assert(contains(str,['< ',fileType]));
+                            end
+                        else
+                            assert(contains(str,['< ',fileType]));
+                            addpath(Path);
+                        end
                     catch
                         uialert(fig,['The selected file is not a subclass of ',fileType,'.'],'Error');
                         return;

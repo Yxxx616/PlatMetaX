@@ -23,8 +23,8 @@ classdef platmetaxmodule_app < handle
             % The main grid
             obj.platmetaxGUI = platmetaxGUI;
             obj.app.maingrid = platmetaxGUI.APP(3,1,uigridlayout(obj.platmetaxGUI.app.maingrid,'RowHeight',{20,30,'1x'},'ColumnWidth',{'2x','0.8x','0.2x','0.1x',1,'1.4x',1,1,'1.2x'},'Padding',[5 5 5 5],'RowSpacing',5,'ColumnSpacing',0,'BackgroundColor','w'));
-            obj.app.label(1) = platmetaxGUI.APP(1,9,uilabel(obj.app.maingrid,'Text','Problem definition','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
-            obj.app.label(2) = platmetaxGUI.APP(1,6,uilabel(obj.app.maingrid,'Text','Algorithm selection','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            obj.app.label(1) = platmetaxGUI.APP(1,9,uilabel(obj.app.maingrid,'Text','Algorithm selection','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
+            obj.app.label(2) = platmetaxGUI.APP(1,6,uilabel(obj.app.maingrid,'Text','Problem definition','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             obj.app.label(3) = platmetaxGUI.APP(1,[1 2],uilabel(obj.app.maingrid,'Text','Result display','HorizontalAlignment','center','FontSize',13,'FontColor',[0.00,0.00,0.00],'FontWeight','bold'));
             platmetaxGUI.APP([1 3],5,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));
             platmetaxGUI.APP([1 3],7,uipanel(obj.app.maingrid,'BackgroundColor',[.8 .8 .8]));

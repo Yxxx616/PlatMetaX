@@ -263,7 +263,7 @@ classdef platmetaxGUI < handle
                         f   = fopen(filename);
                         str = fgetl(f);
                         fclose(f);
-                        if fileType == 'BASEOPTIMIZER'
+                        if contains(fileType,'BASEOPTIMIZER')
                             if contains(str,['< ',fileType]) || contains(str,['< ','ALGORITHM']);
                                 addpath(Path);
                             else
